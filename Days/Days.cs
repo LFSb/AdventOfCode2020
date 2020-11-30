@@ -20,7 +20,7 @@ public static partial class Days
 
   public static string Day1()
   {
-    return string.Empty;
+    return OutputResult("Part2", "Part1");
   }
 
   #endregion
