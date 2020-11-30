@@ -20,7 +20,9 @@ public static partial class Days
 
   public static string Day1()
   {
-    return OutputResult("Part2", "Part1");
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day1.txt"));
+
+    return OutputResult(input[0], input[1]);
   }
 
   #endregion
