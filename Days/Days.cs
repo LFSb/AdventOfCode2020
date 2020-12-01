@@ -16,10 +16,11 @@ public static partial class Days
     return $"{Environment.NewLine}- Part 1: {part1}{Environment.NewLine}- Part 2: {part2}";
   }
 
-  #region Day1
+  #region Day1: Solved!
 
   public static string Day1()
   {
+    var target = 2020;
     var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day1.txt")).Select(int.Parse);
     var inputStack = new Stack<int>(input);
 
@@ -29,7 +30,7 @@ public static partial class Days
     {
       var current = inputStack.Pop();
 
-      if (current.CanSumTo(2020, inputStack, out var candidate))
+      if (current.CanSumTo(target, inputStack, out var candidate))
       {
         part1 = (current * candidate).ToString();
       }
@@ -45,7 +46,7 @@ public static partial class Days
 
       foreach (var next in inputStack.ToArray())
       {
-        if ((current + next).CanSumTo(2020, new Stack<int>(inputStack.Except(new[] { next })), out var candidate))
+        if ((current + next).CanSumTo(target, new Stack<int>(inputStack.Except(new[] { next })), out var candidate))
         {
           part2 = (current * next * candidate).ToString();
         }
@@ -59,6 +60,15 @@ public static partial class Days
   {
     candidate = numbers.FirstOrDefault(x => x == (target - source));
     return candidate != 0;
+  }
+
+  #endregion
+
+  #region Day2: Todo
+
+  public static string Day2()
+  {
+    return OutputResult(string.Empty, string.Empty);
   }
 
   #endregion
