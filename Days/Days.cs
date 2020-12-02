@@ -70,12 +70,7 @@ public static partial class Days
   {
     var inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day2.txt"));
 
-    var rules = new List<Day2Rule>();
-
-    foreach (var input in inputs)
-    {
-      rules.Add(new Day2Rule(input));
-    }
+    var rules = inputs.Select(input => new Day2Rule(input));
 
     var part1 = rules.Count(x => x.IsValidP1());
 
