@@ -68,7 +68,46 @@ public static partial class Days
 
   public static string Day2()
   {
-    return OutputResult(string.Empty, string.Empty);
+    var inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day2.txt"));
+
+    var rules = new List<Day2Rule>();
+
+    foreach (var input in inputs)
+    {
+      rules.Add(new Day2Rule(input));
+    }
+    
+    var part1 = rules.Count(x => x.IsValid());
+
+    return OutputResult(part1.ToString(), string.Empty);
+  }
+
+  private class Day2Rule
+  {
+    public int Min { get; set; }
+
+    public int Max { get; set; }
+
+    public char Rule { get; set; }
+
+    public string PassWord { get; set; }
+
+    public Day2Rule(string input)
+    {
+      var minMax = input.Substring(0, input.IndexOf(' ')).Split('-');
+
+      Min = int.Parse(minMax[0]);
+      Max = int.Parse(minMax[1]);
+      Rule = input[input.IndexOf(' ') + 1];
+      PassWord = input.Substring(input.IndexOf(':') + 2);
+    }
+
+    public bool IsValid()
+    {
+      var count = PassWord.Count(x => x == Rule);
+
+      return count >= Min && count <= Max;
+    }
   }
 
   #endregion
