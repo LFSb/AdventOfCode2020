@@ -64,7 +64,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day2: Todo
+  #region Day2: Done!
 
   public static string Day2()
   {
@@ -76,10 +76,12 @@ public static partial class Days
     {
       rules.Add(new Day2Rule(input));
     }
-    
-    var part1 = rules.Count(x => x.IsValid());
 
-    return OutputResult(part1.ToString(), string.Empty);
+    var part1 = rules.Count(x => x.IsValidP1());
+
+    var part2 = rules.Count(x => x.IsValidP2());
+
+    return OutputResult(part1.ToString(), part2.ToString());
   }
 
   private class Day2Rule
@@ -102,12 +104,28 @@ public static partial class Days
       PassWord = input.Substring(input.IndexOf(':') + 2);
     }
 
-    public bool IsValid()
+    public bool IsValidP1()
     {
       var count = PassWord.Count(x => x == Rule);
 
       return count >= Min && count <= Max;
     }
+
+    public bool IsValidP2()
+    {
+      var min = PassWord[Min - 1] == Rule;
+      var max = PassWord[Max - 1] == Rule;
+      return min ^ max;
+    }
+  }
+
+  #endregion
+
+  #region Day3: Todo
+  
+  public static string Day3()
+  {
+    return OutputResult(string.Empty, string.Empty);
   }
 
   #endregion
