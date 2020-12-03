@@ -120,7 +120,79 @@ public static partial class Days
   
   public static string Day3()
   {
-    return OutputResult(string.Empty, string.Empty);
+    var yStep = 1;
+    var xStep = 3;
+
+    // var input = new []{
+    //   "..##.......",
+    //   "#...#...#..",
+    //   ".#....#..#.",
+    //   "..#.#...#.#",
+    //   ".#...##..#.",
+    //   "..#.##.....",
+    //   ".#.#.#....#",
+    //   ".#........#",
+    //   "#.##...#...",
+    //   "#...##....#",
+    //   ".#..#...#.#"
+    // };
+
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+
+    var d3grid = new Day3Grid(input, input.Length * xStep);
+
+    return OutputResult(d3grid.P1(yStep, xStep).ToString(), string.Empty);
+  }
+
+  private class Day3Grid
+  {
+    public bool[][] Grid { get; private set; }
+
+    private int CurrentX { get; set; }
+
+    private int CurrentY { get; set; }
+
+    public Day3Grid(string[] inputs, int maxWidth)
+    {
+      Grid = new bool[inputs.Length][];
+      
+      var xdepth = inputs[0].Length;
+
+      for(var y = 0; y < inputs.Length; y++)
+      {
+        for(var x = 0; x < maxWidth; x++)
+        {
+          if(Grid[y] == null)
+          {
+            Grid[y] = new bool[maxWidth];
+          }
+
+          Grid[y][x] = inputs[y][x % xdepth] == '#';
+        }
+      }     
+    }
+
+    public int P1(int ystep, int xstep)
+    {
+      var count = 0;
+
+      while(CurrentY < Grid.Length - 1)
+      {
+        CurrentY += ystep;
+        CurrentX += xstep;
+
+        if(Grid[CurrentY][CurrentX])
+        { 
+          count++; 
+        }
+      }
+      //Move 3 to the right, one below.
+
+      CurrentY = 0;
+      CurrentX = 0;
+
+      return count;
+    }
   }
 
   #endregion
