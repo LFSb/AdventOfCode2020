@@ -120,28 +120,23 @@ public static partial class Days
   
   public static string Day3()
   {
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+
+    var steps = new []
+    {
+      new Tuple<int, int>(1, 1),
+      new Tuple<int, int>(3, 1),
+      new Tuple<int, int>(5, 1),
+      new Tuple<int, int>(7, 1),
+      new Tuple<int, int>(1, 2)
+    };
+
+    var d3grid = new Day3Grid(input, input.Length * steps.Max(x => x.Item1));
+
     var yStep = 1;
     var xStep = 3;
 
-    // var input = new []{
-    //   "..##.......",
-    //   "#...#...#..",
-    //   ".#....#..#.",
-    //   "..#.#...#.#",
-    //   ".#...##..#.",
-    //   "..#.##.....",
-    //   ".#.#.#....#",
-    //   ".#........#",
-    //   "#.##...#...",
-    //   "#...##....#",
-    //   ".#..#...#.#"
-    // };
-
-    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
-
-    var d3grid = new Day3Grid(input, input.Length * xStep);
-
-    return OutputResult(d3grid.P1(yStep, xStep).ToString(), string.Empty);
+    return OutputResult(d3grid.P1(yStep, xStep).ToString(), d3grid.P2(steps).ToString());
   }
 
   private class Day3Grid
@@ -186,12 +181,25 @@ public static partial class Days
           count++; 
         }
       }
-      //Move 3 to the right, one below.
+
+      //Reset the X/Y values for the next part.
 
       CurrentY = 0;
       CurrentX = 0;
 
       return count;
+    }
+
+    public int P2(Tuple<int, int>[] inputs)
+    {
+      var result = 1; //To avoid multiplying by 0..
+
+      foreach(var input in inputs)
+      {
+        result *= P1(input.Item2, input.Item1);;
+      }
+
+      return result;
     }
   }
 
