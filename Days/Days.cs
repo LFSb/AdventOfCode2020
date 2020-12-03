@@ -116,7 +116,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day3: Todo
+  #region Day3: Solved!
   
   public static string Day3()
   {
@@ -204,4 +204,12 @@ public static partial class Days
   }
 
   #endregion
+  
+  #region Day4: TODO
+  public static string Day4()
+  {
+    return OutputResult();
+  }
+  #endregion
+
 }
