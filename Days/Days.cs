@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 public static partial class Days
@@ -205,10 +206,99 @@ public static partial class Days
 
   #endregion
   
-  #region Day4: TODO
+  #region Day4: Solved!
   public static string Day4()
   {
-    return OutputResult();
+    var input =  File.ReadAllText(Path.Combine(InputBasePath, "Day4.txt"));
+
+    var passports = input.Split(new []{ $"{Environment.NewLine}{Environment.NewLine}" }, StringSplitOptions.RemoveEmptyEntries);
+
+    var parsedPassports = new List<Day4Passport>();
+
+    foreach(var passport in passports)
+    {
+      parsedPassports.Add(new Day4Passport(passport));
+    }
+
+    return OutputResult(parsedPassports.Count(x => x.P1()).ToString(), parsedPassports.Count(x => x.P2()).ToString());
+  }
+
+  public class Day4Passport
+  {
+    public string byr { get; private set; }
+
+    public string iyr { get; private set; }
+
+    public string eyr { get; private set; }
+
+    public string hgt { get; private set; }
+
+    public string hcl { get; private set; }
+
+    public string ecl { get; private set; }
+
+    public string pid { get; private set; }
+
+    public string cid { get; private set; }
+
+    public Day4Passport(string passport)
+    {
+      var split = passport.Replace(Environment.NewLine, " ").Split(' ').ToDictionary(x => x.Split(':')[0], x=> x.Split(':')[1]);
+
+      var props = this.GetType().GetProperties().ToArray();
+
+      foreach(var prop in props)
+      {
+        if(split.ContainsKey(prop.Name))
+        {
+          prop.SetValue(this, split[prop.Name]);
+        }
+      }
+    }
+
+    public bool P1()
+    {
+      var validCount = this.GetType().GetProperties().Select(x => x.GetValue(this)).Count(x => x != null);
+
+      return (validCount == 8 || (validCount == 7 && this.cid == null));
+    }
+
+    private string[] ValidEyeColor = new string[]
+    {
+      "amb","blu","brn","gry","grn","hzl","oth"
+    };
+
+    public bool P2()
+    {
+      var isValid = true;
+
+      isValid &= byr != null && byr.Length == 4 && int.TryParse(byr, out var parsedByr) && (parsedByr >= 1920 && parsedByr <= 2002);
+
+      isValid &= iyr != null && iyr.Length == 4 && int.TryParse(iyr, out var parsedIyr) && (parsedIyr >= 2010 && parsedIyr <= 2020);
+
+      isValid &= eyr != null && eyr.Length == 4 && int.TryParse(eyr, out var parsedEyr) && (parsedEyr >= 2020 && parsedEyr <= 2030);
+
+      if(hgt != null && hgt.EndsWith("in"))
+      {
+        isValid &= int.TryParse(hgt.Substring(0, hgt.IndexOf('i')), out var parsedHeight) && parsedHeight >= 59 && parsedHeight <= 76;
+      }
+      else if(hgt != null && hgt.EndsWith("cm"))
+      {
+        isValid &= int.TryParse(hgt.Substring(0, hgt.IndexOf('c')), out var parsedHeight) && parsedHeight >= 150 && parsedHeight <= 193;
+      }
+      else
+      {
+        return false;
+      }
+
+      isValid &= hcl != null && hcl.StartsWith("#") && hcl.Length == 7 && hcl.Substring(1).All(x => char.IsLetterOrDigit(x));
+
+      isValid &= ecl != null && ValidEyeColor.Contains(ecl);
+
+      isValid &= pid != null && pid.Length == 9 && pid.All(x => char.IsDigit(x));
+
+      return isValid;
+    }
   }
   #endregion
 
