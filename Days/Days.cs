@@ -302,7 +302,8 @@ public static partial class Days
   }
   #endregion
 
-  #region Day5: TODO
+  #region Day5: Solved!
+
   public static string Day5()
   {
     var inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day5.txt")); //new[] { "FBFBBFFRLR", "BFFFBBFRRR", "FFFBBBFRRR", "BBFFBBFRLL" };
@@ -322,10 +323,17 @@ public static partial class Days
       p1 = Math.Max(p1, test.SeatID);
     }
 
-    //P2 is the ID of the seat that is not taken yet. The ID + 1 and -1 are taken , though. Therefore, I need to find the two Seats that are exactly 2 removed from one another.
+    //For P2, we need to find the SeatID of the Seat that is missing. Both the first and the last rows have seats missing, so disregard those.
+    seats.Remove(seats.Keys.Min());
+    seats.Remove(seats.Keys.Max());
 
-    
-    return OutputResult(p1.ToString());
+    //Next, we flatten the list of seat ID's
+    var flattenedSeats = seats.SelectMany(x => x.Value);
+
+    //And P2 is the missing seat, aka the first seat not present in the list + 1, with + 1 added to its seat id.
+    var p2 = flattenedSeats.First(x => !flattenedSeats.Contains(x + 1)) + 1;
+
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
   public class Day5Seats
@@ -389,5 +397,45 @@ public static partial class Days
     }
 
   }
+  #endregion
+
+  #region Day6: Todo
+  public static string Day6()
+  {
+    var parsedInput = new Day6Groups(new Queue<string>(File.ReadAllLines(Path.Combine(InputBasePath, "Day6.txt"))));
+
+    var i = 1;
+    foreach (var group in parsedInput.Groups)
+    {
+      Console.WriteLine($"{i++}: {string.Join("", group.SelectMany(x => x.ToCharArray()).Distinct())}");
+    }
+
+    var p1 = parsedInput.Groups.Sum(x => x.SelectMany(y => y.ToCharArray()).Distinct().Count()); //We want to know the sum of the amount of people that answered yes to any question.
+
+    return OutputResult(p1.ToString());
+  }
+
+  public class Day6Groups
+  {
+    public List<List<string>> Groups { get; set; }
+
+    public Day6Groups(Queue<string> inputs)
+    {
+      Groups = new List<List<string>> { new List<string>() };
+
+      while (inputs.Any())
+      {
+        var current = inputs.Dequeue();
+
+        if (string.IsNullOrEmpty(current))
+        {
+          Groups.Add(new List<string>());
+        }
+
+        Groups.Last().Add(current);
+      }
+    }
+  }
+
   #endregion
 }
