@@ -118,12 +118,12 @@ public static partial class Days
   #endregion
 
   #region Day3: Solved!
-  
+
   public static string Day3()
   {
     var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
 
-    var steps = new []
+    var steps = new[]
     {
       new Tuple<int, int>(1, 1),
       new Tuple<int, int>(3, 1),
@@ -151,35 +151,35 @@ public static partial class Days
     public Day3Grid(string[] inputs, int maxWidth)
     {
       Grid = new bool[inputs.Length][];
-      
+
       var xdepth = inputs[0].Length;
 
-      for(var y = 0; y < inputs.Length; y++)
+      for (var y = 0; y < inputs.Length; y++)
       {
-        for(var x = 0; x < maxWidth; x++)
+        for (var x = 0; x < maxWidth; x++)
         {
-          if(Grid[y] == null)
+          if (Grid[y] == null)
           {
             Grid[y] = new bool[maxWidth];
           }
 
           Grid[y][x] = inputs[y][x % xdepth] == '#';
         }
-      }     
+      }
     }
 
     public int P1(int ystep, int xstep)
     {
       var count = 0;
 
-      while(CurrentY < Grid.Length - 1)
+      while (CurrentY < Grid.Length - 1)
       {
         CurrentY += ystep;
         CurrentX += xstep;
 
-        if(Grid[CurrentY][CurrentX])
-        { 
-          count++; 
+        if (Grid[CurrentY][CurrentX])
+        {
+          count++;
         }
       }
 
@@ -195,9 +195,9 @@ public static partial class Days
     {
       var result = 1; //To avoid multiplying by 0..
 
-      foreach(var input in inputs)
+      foreach (var input in inputs)
       {
-        result *= P1(input.Item2, input.Item1);;
+        result *= P1(input.Item2, input.Item1); ;
       }
 
       return result;
@@ -205,17 +205,17 @@ public static partial class Days
   }
 
   #endregion
-  
+
   #region Day4: Solved!
   public static string Day4()
   {
-    var input =  File.ReadAllText(Path.Combine(InputBasePath, "Day4.txt"));
+    var input = File.ReadAllText(Path.Combine(InputBasePath, "Day4.txt"));
 
-    var passports = input.Split(new []{ $"{Environment.NewLine}{Environment.NewLine}" }, StringSplitOptions.RemoveEmptyEntries);
+    var passports = input.Split(new[] { $"{Environment.NewLine}{Environment.NewLine}" }, StringSplitOptions.RemoveEmptyEntries);
 
     var parsedPassports = new List<Day4Passport>();
 
-    foreach(var passport in passports)
+    foreach (var passport in passports)
     {
       parsedPassports.Add(new Day4Passport(passport));
     }
@@ -243,13 +243,13 @@ public static partial class Days
 
     public Day4Passport(string passport)
     {
-      var split = passport.Replace(Environment.NewLine, " ").Split(' ').ToDictionary(x => x.Split(':')[0], x=> x.Split(':')[1]);
+      var split = passport.Replace(Environment.NewLine, " ").Split(' ').ToDictionary(x => x.Split(':')[0], x => x.Split(':')[1]);
 
       var props = this.GetType().GetProperties().ToArray();
 
-      foreach(var prop in props)
+      foreach (var prop in props)
       {
-        if(split.ContainsKey(prop.Name))
+        if (split.ContainsKey(prop.Name))
         {
           prop.SetValue(this, split[prop.Name]);
         }
@@ -278,11 +278,11 @@ public static partial class Days
 
       isValid &= eyr != null && eyr.Length == 4 && int.TryParse(eyr, out var parsedEyr) && (parsedEyr >= 2020 && parsedEyr <= 2030);
 
-      if(hgt != null && hgt.EndsWith("in"))
+      if (hgt != null && hgt.EndsWith("in"))
       {
         isValid &= int.TryParse(hgt.Substring(0, hgt.IndexOf('i')), out var parsedHeight) && parsedHeight >= 59 && parsedHeight <= 76;
       }
-      else if(hgt != null && hgt.EndsWith("cm"))
+      else if (hgt != null && hgt.EndsWith("cm"))
       {
         isValid &= int.TryParse(hgt.Substring(0, hgt.IndexOf('c')), out var parsedHeight) && parsedHeight >= 150 && parsedHeight <= 193;
       }
@@ -302,4 +302,151 @@ public static partial class Days
   }
   #endregion
 
+  #region Day5: TODO
+  public static string Day5()
+  {
+    var inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day5.txt")); //new[] { "FBFBBFFRLR", "BFFFBBFRRR", "FFFBBBFRRR", "BBFFBBFRLL" };
+
+    var seatAmount = 128;
+
+    var columnAmount = 8;
+
+    var p1 = 0;
+
+    var seats = new Dictionary<int, bool[]>();
+
+    foreach (var input in inputs)
+    {
+      var test = new Day5Seats(input, seatAmount, columnAmount, ref seats);
+
+      p1 = Math.Max(p1, test.SeatID);
+    }
+
+    foreach (var row in seats.Where(x => x.Value.Any(y => !y)).OrderBy(x => x.Key))
+    {
+      Console.WriteLine($"{row.Key}: {string.Join("", row.Value.Select(x => x ? 'x' : '_'))}");
+    }
+
+
+    return OutputResult(p1.ToString());
+  }
+
+  public class Day5Seats
+  {
+    //F = front, B = Back, L = Left, R = right
+
+    private int Row { get; set; }
+
+    private int Column { get; set; }
+
+    public int SeatID => (Row * 8) + Column;
+
+
+
+    public Day5Seats(string input, int seatAmount, int columns, ref Dictionary<int, bool[]> seats)
+    {
+      var minRow = 0;
+      var maxRow = seatAmount - 1; // Don't want any off-by-one-errors..
+
+      var first = new Queue<char>(input.Substring(0, 7));
+
+      while (first.Any())
+      {
+        switch (first.Dequeue())
+        {
+          case 'F':
+            {
+              maxRow -= Partition(minRow, maxRow);
+            }
+            break;
+          case 'B':
+            {
+              minRow += Partition(minRow, maxRow);
+            }
+            break;
+          default:
+            {
+              throw new Exception("Someone fucked up.");
+            }
+        }
+      }
+
+      Row = minRow;
+
+      if (!seats.ContainsKey(Row))
+      {
+        Console.WriteLine($"Added new Row: {Row}");
+        seats.Add(Row, new bool[columns]);
+      }
+
+      var second = new Queue<char>(input.Substring(7));
+
+      var minColumn = 0;
+      var maxColumn = columns - 1; // Don't want any off-by-one-errors..
+
+      while (second.Any())
+      {
+        switch (second.Dequeue())
+        {
+          case 'L':
+            {
+              maxColumn -= Partition(minColumn, maxColumn);
+            }
+            break;
+          case 'R':
+            {
+              minColumn += Partition(minColumn, maxColumn);
+            }
+            break;
+          default:
+            {
+              throw new Exception("Someone really fucked up.");
+            }
+        }
+      }
+
+      Column = minColumn;
+
+      Console.WriteLine($"Set Row {Row} column {Column} to true.");
+      seats[Row][Column] = true;
+    }
+
+    public int PartitionByInput(Queue<char> input, int limit)
+    {
+      var min = 0;
+      var max = limit - 1;
+
+      while (input.Any())
+      {
+        switch (input.Dequeue())
+        {
+          case 'L':
+          case 'F':
+            {
+              max -= Partition(min, max);
+            }
+            break;
+          case 'B':
+          case 'R':
+            {
+              min += Partition(min, max);
+            }
+            break;
+          default:
+            {
+              throw new Exception("Someone really fucked up.");
+            }
+        }
+      }
+
+      return max;
+    }
+
+    private int Partition(int min, int max)
+    {
+      return (int)Math.Ceiling(((decimal)max - min) / 2);
+    }
+
+  }
+  #endregion
 }
