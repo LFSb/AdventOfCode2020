@@ -313,7 +313,7 @@ public static partial class Days
 
     var p1 = 0;
 
-    var seats = new Dictionary<int, bool[]>();
+    var seats = new Dictionary<int, int[]>();
 
     foreach (var input in inputs)
     {
@@ -322,12 +322,9 @@ public static partial class Days
       p1 = Math.Max(p1, test.SeatID);
     }
 
-    foreach (var row in seats.Where(x => x.Value.Any(y => !y)).OrderBy(x => x.Key))
-    {
-      Console.WriteLine($"{row.Key}: {string.Join("", row.Value.Select(x => x ? 'x' : '_'))}");
-    }
+    //P2 is the ID of the seat that is not taken yet. The ID + 1 and -1 are taken , though. Therefore, I need to find the two Seats that are exactly 2 removed from one another.
 
-
+    
     return OutputResult(p1.ToString());
   }
 
@@ -341,74 +338,18 @@ public static partial class Days
 
     public int SeatID => (Row * 8) + Column;
 
-
-
-    public Day5Seats(string input, int seatAmount, int columns, ref Dictionary<int, bool[]> seats)
+    public Day5Seats(string input, int seatAmount, int columns, ref Dictionary<int, int[]> seats)
     {
-      var minRow = 0;
-      var maxRow = seatAmount - 1; // Don't want any off-by-one-errors..
+      Row = PartitionByInput(new Queue<char>(input.Substring(0, 7)), seatAmount);
 
-      var first = new Queue<char>(input.Substring(0, 7));
-
-      while (first.Any())
-      {
-        switch (first.Dequeue())
-        {
-          case 'F':
-            {
-              maxRow -= Partition(minRow, maxRow);
-            }
-            break;
-          case 'B':
-            {
-              minRow += Partition(minRow, maxRow);
-            }
-            break;
-          default:
-            {
-              throw new Exception("Someone fucked up.");
-            }
-        }
-      }
-
-      Row = minRow;
+      Column = PartitionByInput(new Queue<char>(input.Substring(7)), columns);
 
       if (!seats.ContainsKey(Row))
       {
-        Console.WriteLine($"Added new Row: {Row}");
-        seats.Add(Row, new bool[columns]);
+        seats.Add(Row, new int[columns]);
       }
 
-      var second = new Queue<char>(input.Substring(7));
-
-      var minColumn = 0;
-      var maxColumn = columns - 1; // Don't want any off-by-one-errors..
-
-      while (second.Any())
-      {
-        switch (second.Dequeue())
-        {
-          case 'L':
-            {
-              maxColumn -= Partition(minColumn, maxColumn);
-            }
-            break;
-          case 'R':
-            {
-              minColumn += Partition(minColumn, maxColumn);
-            }
-            break;
-          default:
-            {
-              throw new Exception("Someone really fucked up.");
-            }
-        }
-      }
-
-      Column = minColumn;
-
-      Console.WriteLine($"Set Row {Row} column {Column} to true.");
-      seats[Row][Column] = true;
+      seats[Row][Column] = SeatID;
     }
 
     public int PartitionByInput(Queue<char> input, int limit)
