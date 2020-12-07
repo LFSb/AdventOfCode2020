@@ -402,17 +402,42 @@ public static partial class Days
   #region Day6: Todo
   public static string Day6()
   {
+//     var testInput = new []{
+// "abc",
+// "",
+// "a",
+// "b",
+// "c",
+// "",
+// "ab",
+// "ac",
+// "",
+// "a",
+// "a",
+// "a",
+// "a",
+// "",
+// "b"
+//     };
+    
     var parsedInput = new Day6Groups(new Queue<string>(File.ReadAllLines(Path.Combine(InputBasePath, "Day6.txt"))));
-
-    var i = 1;
-    foreach (var group in parsedInput.Groups)
-    {
-      Console.WriteLine($"{i++}: {string.Join("", group.SelectMany(x => x.ToCharArray()).Distinct())}");
-    }
 
     var p1 = parsedInput.Groups.Sum(x => x.SelectMany(y => y.ToCharArray()).Distinct().Count()); //We want to know the sum of the amount of people that answered yes to any question.
 
-    return OutputResult(p1.ToString());
+    var p2 = 0; //For p2, we want to know the sum of the amount of answers that were answered as "yes" by everyone in the group.
+
+    foreach (var group in parsedInput.Groups)
+    {
+      foreach(var answer in group.SelectMany(x => x.ToCharArray()).Distinct().ToList())  
+      {
+        if(group.All(x => x.Contains(answer)))
+        {
+          p2++;
+        }
+      }
+    }   
+
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
   public class Day6Groups
@@ -431,8 +456,10 @@ public static partial class Days
         {
           Groups.Add(new List<string>());
         }
-
-        Groups.Last().Add(current);
+        else
+        {
+          Groups.Last().Add(current);
+        }        
       }
     }
   }
