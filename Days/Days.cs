@@ -466,7 +466,7 @@ public static partial class Days
       "dotted black bags contain no other bags."
     };
 
-    //inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day7.txt")); //Doesn't work yet AARRGGHH
+    inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day7.txt"));
 
     var bags = new List<Day7Bag>();
 
@@ -501,16 +501,9 @@ public static partial class Days
           }
         }
       }
-
-      if(current.Contents.Any(x => x.Target))
-      {
-        current.Target = true;
-      }
     }
 
-    bags.ForEach(x => x.Target = x.Contents.Any(y => y.Target));
-
-    var p1 = bags.Where(x => x.Target).Select(x => x.Name).Distinct(); //We need to know what bags contain the shiny gold bag.
+    var p1 = bags.Where(x => x.ContainsTarget() && x.Name != "shiny gold").Select(x => x.Name).Distinct(); //We need to know what bags contain the shiny gold bag.
 
     return OutputResult(p1.Count().ToString());
   }
@@ -533,10 +526,17 @@ public static partial class Days
       Qualifier = split[0];
       Color = split[1];
 
-      if(Name == "shiny gold")
+      if (Name == "shiny gold")
         Target = true;
 
       Contents = new List<Day7Bag>();
+    }
+
+    public bool ContainsTarget()
+    {
+      var retVal = Contents.Any(x => x.ContainsTarget()) || Target;
+      Target = retVal;
+      return retVal;
     }
   }
 
