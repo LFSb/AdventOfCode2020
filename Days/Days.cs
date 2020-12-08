@@ -453,20 +453,7 @@ public static partial class Days
 
   public static string Day7()
   {
-    var inputs = new[]
-    {
-      "light red bags contain 1 bright white bag, 2 muted yellow bags.",
-      "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
-      "bright white bags contain 1 shiny gold bag.",
-      "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
-      "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
-      "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
-      "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
-      "faded blue bags contain no other bags.",
-      "dotted black bags contain no other bags."
-    };
-
-    inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day7.txt"));
+    var inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day7.txt"));
 
     var bags = new List<Day7Bag>();
 
@@ -552,33 +539,23 @@ public static partial class Days
 
   #endregion
 
-  #region Day8: Todo
+  #region Day8: Solved! Without even debugging!
+
   public static string Day8()
   {
-    var input = new[]
-    {
-      "nop +0",
-      "acc +1",
-      "jmp +4",
-      "acc +3",
-      "jmp -3",
-      "acc -99",
-      "acc +1",
-      "jmp -4",
-      "acc +6"
-    };
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day8.txt"));
 
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day8.txt"));
+    var p1 = Day8p1(input, out var _);
 
-    var p1 = Day7P1(input, out var _);
-
+    var p2 = 0;
     //For p2, we're going to have to swap some operations around. nop has to be swapped with jmp, and jmp has to be swapped with nop. There's a permutation in there that'll make sure the program succesfully terminates.
 
+    //First, get all the indexes of the operations that we're going to swap around.
     var swappables = new Queue<int>();
 
     foreach (var i in input)
     {
-      Day7SplitStatement(i, out var operation, out var value);
+      Day8SplitStatement(i, out var operation, out var value);
 
       if (operation == "nop" || operation == "jmp")
       {
@@ -586,8 +563,7 @@ public static partial class Days
       }
     }
 
-    var p2 = 0;
-
+    //then iterate through all of these operations, and flip them around before running the boot code again.
     while (p2 == 0)
     {
       var localInput = input.ToArray();
@@ -595,21 +571,13 @@ public static partial class Days
       var operationIndex = swappables.Dequeue();
       var operationToSwap = localInput[operationIndex];
 
-      Day7SplitStatement(operationToSwap, out var operation, out var value);
+      Day8SplitStatement(operationToSwap, out var operation, out var value);
 
-      if (operation == "nop")
-      {
-        operation = "jmp";
-      }
-      else
-      {
-        operation = "nop";
-      }
+      operation = operation == "nop" ? "jmp" : "nop";
 
-      operationToSwap = $"{operation} {value}";
-      localInput[operationIndex] = operationToSwap;
+      localInput[operationIndex] = $"{operation} {value}";
 
-      var output = Day7P1(localInput, out var completed);
+      var output = Day8p1(localInput, out var completed);
 
       if (completed)
       {
@@ -620,7 +588,7 @@ public static partial class Days
     return OutputResult(p1.ToString(), p2.ToString());
   }
 
-  public static void Day7SplitStatement(string input, out string operation, out string value)
+  public static void Day8SplitStatement(string input, out string operation, out string value)
   {
     var splitStatement = input.Split(' ');
 
@@ -628,7 +596,7 @@ public static partial class Days
     value = splitStatement[1];
   }
 
-  public static int Day7P1(string[] input, out bool completed)
+  public static int Day8p1(string[] input, out bool completed)
   {
     var acc = 0;
     completed = false;
@@ -648,10 +616,10 @@ public static partial class Days
         completedStatements.Add(idx);
       }
 
-      Day7SplitStatement(input[idx], out var operation, out var value);
+      Day8SplitStatement(input[idx], out var operation, out var value);
 
       //System.Console.WriteLine($"idx {idx}. Operation {operation}, value {value}.");
-      Day7Interpret(ref idx, ref acc, operation, value);
+      Day8Interpret(ref idx, ref acc, operation, value);
     }
 
     completed = true;
@@ -659,7 +627,7 @@ public static partial class Days
     return acc;
   }
 
-  public static void Day7Interpret(ref int idx, ref int acc, string operation, string value)
+  public static void Day8Interpret(ref int idx, ref int acc, string operation, string value)
   {
     switch (operation)
     {
