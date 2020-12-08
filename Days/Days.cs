@@ -505,7 +505,9 @@ public static partial class Days
 
     var p1 = bags.Where(x => x.ContainsTarget() && x.Name != "shiny gold").Select(x => x.Name).Distinct(); //We need to know what bags contain the shiny gold bag.
 
-    return OutputResult(p1.Count().ToString());
+    var p2 = bags.First(x => x.Name == "shiny gold").SumContents();
+
+    return OutputResult(p1.Count().ToString(), p2.ToString());
   }
 
   public class Day7Bag
@@ -534,9 +536,17 @@ public static partial class Days
 
     public bool ContainsTarget()
     {
-      var retVal = Contents.Any(x => x.ContainsTarget()) || Target;
+      var retVal = Target || Contents.Any(x => x.ContainsTarget());
       Target = retVal;
       return retVal;
+    }
+
+    public int SumContents()
+    {
+      var contents = Contents.Count();
+      
+      contents += Contents.Sum(z => z.SumContents());
+      return contents;
     }
   }
 
