@@ -449,7 +449,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day7: Todo
+  #region Day7: Solved! (but very slow)
 
   public static string Day7()
   {
@@ -544,11 +544,101 @@ public static partial class Days
     public int SumContents()
     {
       var contents = Contents.Count();
-      
+
       contents += Contents.Sum(z => z.SumContents());
       return contents;
     }
   }
 
+  #endregion
+
+  #region Day8: Todo
+  public static string Day8()
+  {
+    var input = new[]
+    {
+      "nop +0",
+      "acc +1",
+      "jmp +4",
+      "acc +3",
+      "jmp -3",
+      "acc -99",
+      "acc +1",
+      "jmp -4",
+      "acc +6"
+    };
+
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day8.txt"));
+
+    var acc = 0;
+
+    var completedStatements = new List<int>();
+
+    for (var idx = 0; idx < input.Length; idx++)
+    {
+      var statement = input[idx];
+
+      if (completedStatements.Contains(idx))
+      {
+        break;
+      }
+      else
+      {
+        completedStatements.Add(idx);
+      }
+
+      var splitStatement = input[idx].Split(' ');
+
+      var operation = splitStatement[0].Trim();
+      var value = splitStatement[1];
+
+      //System.Console.WriteLine($"idx {idx}. Operation {operation}, value {value}.");
+
+      switch (splitStatement[0].Trim())
+      {
+        case "nop":
+          {
+            //do nothing, simply progress to the next step.
+          }
+          break;
+        case "acc": //Interpret the value and add it to the accumulator
+          {
+            var val = int.Parse(value.Substring(1));
+
+            if (value[0] == '+')
+            {
+              acc += val;
+            }
+            else
+            {
+              acc -= val;
+            }
+          }
+          break;
+        case "jmp": //Interpret the value and jump idx relative to the value.
+          {
+            var val = int.Parse(value.Substring(1));
+
+            if (value[0] == '+')
+            {
+              idx += val - 1;
+            }
+            else
+            {
+              idx -= val + 1;
+            }
+          }
+          break;
+        default:
+          {
+            throw new Exception("Someone fucked up");
+          }
+      }
+    }
+
+    var p1 = acc;
+
+    return OutputResult(p1.ToString());
+  }
   #endregion
 }
