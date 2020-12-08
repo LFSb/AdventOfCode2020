@@ -570,7 +570,68 @@ public static partial class Days
 
     input = File.ReadAllLines(Path.Combine(InputBasePath, "Day8.txt"));
 
+    var p1 = Day7P1(input, out var _);
+
+    //For p2, we're going to have to swap some operations around. nop has to be swapped with jmp, and jmp has to be swapped with nop. There's a permutation in there that'll make sure the program succesfully terminates.
+
+    var swappables = new Queue<int>();
+
+    foreach (var i in input)
+    {
+      Day7SplitStatement(i, out var operation, out var value);
+
+      if (operation == "nop" || operation == "jmp")
+      {
+        swappables.Enqueue(Array.IndexOf(input, i));
+      }
+    }
+
+    var p2 = 0;
+
+    while (p2 == 0)
+    {
+      var localInput = input.ToArray();
+
+      var operationIndex = swappables.Dequeue();
+      var operationToSwap = localInput[operationIndex];
+
+      Day7SplitStatement(operationToSwap, out var operation, out var value);
+
+      if (operation == "nop")
+      {
+        operation = "jmp";
+      }
+      else
+      {
+        operation = "nop";
+      }
+
+      operationToSwap = $"{operation} {value}";
+      localInput[operationIndex] = operationToSwap;
+
+      var output = Day7P1(localInput, out var completed);
+
+      if (completed)
+      {
+        p2 = output;
+      }
+    }
+
+    return OutputResult(p1.ToString(), p2.ToString());
+  }
+
+  public static void Day7SplitStatement(string input, out string operation, out string value)
+  {
+    var splitStatement = input.Split(' ');
+
+    operation = splitStatement[0].Trim();
+    value = splitStatement[1];
+  }
+
+  public static int Day7P1(string[] input, out bool completed)
+  {
     var acc = 0;
+    completed = false;
 
     var completedStatements = new List<int>();
 
@@ -580,65 +641,66 @@ public static partial class Days
 
       if (completedStatements.Contains(idx))
       {
-        break;
+        return acc;
       }
       else
       {
         completedStatements.Add(idx);
       }
 
-      var splitStatement = input[idx].Split(' ');
-
-      var operation = splitStatement[0].Trim();
-      var value = splitStatement[1];
+      Day7SplitStatement(input[idx], out var operation, out var value);
 
       //System.Console.WriteLine($"idx {idx}. Operation {operation}, value {value}.");
-
-      switch (splitStatement[0].Trim())
-      {
-        case "nop":
-          {
-            //do nothing, simply progress to the next step.
-          }
-          break;
-        case "acc": //Interpret the value and add it to the accumulator
-          {
-            var val = int.Parse(value.Substring(1));
-
-            if (value[0] == '+')
-            {
-              acc += val;
-            }
-            else
-            {
-              acc -= val;
-            }
-          }
-          break;
-        case "jmp": //Interpret the value and jump idx relative to the value.
-          {
-            var val = int.Parse(value.Substring(1));
-
-            if (value[0] == '+')
-            {
-              idx += val - 1;
-            }
-            else
-            {
-              idx -= val + 1;
-            }
-          }
-          break;
-        default:
-          {
-            throw new Exception("Someone fucked up");
-          }
-      }
+      Day7Interpret(ref idx, ref acc, operation, value);
     }
 
-    var p1 = acc;
+    completed = true;
 
-    return OutputResult(p1.ToString());
+    return acc;
+  }
+
+  public static void Day7Interpret(ref int idx, ref int acc, string operation, string value)
+  {
+    switch (operation)
+    {
+      case "nop":
+        {
+          //do nothing, simply progress to the next step.
+        }
+        break;
+      case "acc": //Interpret the value and add it to the accumulator
+        {
+          var val = int.Parse(value.Substring(1));
+
+          if (value[0] == '+')
+          {
+            acc += val;
+          }
+          else
+          {
+            acc -= val;
+          }
+        }
+        break;
+      case "jmp": //Interpret the value and jump idx relative to the value.
+        {
+          var val = int.Parse(value.Substring(1));
+
+          if (value[0] == '+')
+          {
+            idx += val - 1;
+          }
+          else
+          {
+            idx -= val + 1;
+          }
+        }
+        break;
+      default:
+        {
+          throw new Exception("Someone fucked up");
+        }
+    }
   }
   #endregion
 }
