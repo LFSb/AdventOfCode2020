@@ -399,27 +399,10 @@ public static partial class Days
   }
   #endregion
 
-  #region Day6: Todo
+  #region Day6: Solved!
+
   public static string Day6()
   {
-//     var testInput = new []{
-// "abc",
-// "",
-// "a",
-// "b",
-// "c",
-// "",
-// "ab",
-// "ac",
-// "",
-// "a",
-// "a",
-// "a",
-// "a",
-// "",
-// "b"
-//     };
-    
     var parsedInput = new Day6Groups(new Queue<string>(File.ReadAllLines(Path.Combine(InputBasePath, "Day6.txt"))));
 
     var p1 = parsedInput.Groups.Sum(x => x.SelectMany(y => y.ToCharArray()).Distinct().Count()); //We want to know the sum of the amount of people that answered yes to any question.
@@ -428,14 +411,14 @@ public static partial class Days
 
     foreach (var group in parsedInput.Groups)
     {
-      foreach(var answer in group.SelectMany(x => x.ToCharArray()).Distinct().ToList())  
+      foreach (var answer in group.SelectMany(x => x.ToCharArray()).Distinct().ToList())
       {
-        if(group.All(x => x.Contains(answer)))
+        if (group.All(x => x.Contains(answer)))
         {
           p2++;
         }
       }
-    }   
+    }
 
     return OutputResult(p1.ToString(), p2.ToString());
   }
@@ -459,8 +442,120 @@ public static partial class Days
         else
         {
           Groups.Last().Add(current);
-        }        
+        }
       }
+    }
+  }
+
+  #endregion
+
+  #region Day7: Todo
+
+  public static string Day7()
+  {
+    var inputs = new[]
+    {
+      "light red bags contain 1 bright white bag, 2 muted yellow bags.",
+      "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
+      "bright white bags contain 1 shiny gold bag.",
+      "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
+      "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
+      "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
+      "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
+      "faded blue bags contain no other bags.",
+      "dotted black bags contain no other bags."
+    }; //We should parse this input in two stages. First, we need all the different colors of bags. We do this by only parsing the part before "bags" and then building a list of all possible bags.
+
+    var bags = new List<Day7Bag>();
+
+    foreach(var input in inputs)
+    {
+      var bagName = input.Substring(0, input.IndexOf("bags")).Trim();
+
+      bags.Add(new Day7Bag(bagName, 1));
+    }
+
+    //Afterwards, we go through the inputs again but this time, we parse the part where we build our tree.
+
+    foreach(var input in inputs.Where(x => !x.Contains("no other bags")))
+    {
+      var bagName = input.Substring(0, input.IndexOf("bags")).Trim();
+      var current = bags.FirstOrDefault(x => x.Name == bagName);
+
+      while(current == null)
+      {
+        foreach(var bag in bags) //Top level bags
+        {
+          if(current != null) break;
+
+          var localBag = bag;
+
+          while(localBag.Contents.Any(x => !x.Searched) && current == null)
+          {
+            current = localBag.Contents.FirstOrDefault(x => x.Name == bagName);
+
+            if(current == null)
+            {
+              localBag = localBag.Contents.First(x => !x.Searched);
+            }
+            else
+            {
+              break;
+            }
+
+            if(!localBag.Contents.Any())
+            {
+              localBag.Searched = true;
+            }
+          }
+        }
+        
+        //We're going to have to for a depth-first search in the bag contents.
+      }
+
+      var contents = input.Substring(input.IndexOf("contain")+"contain".Length).Split(',');
+      foreach(var content in contents)
+      {
+        var split = content.Trim().Split(' ');
+        var amount = int.Parse(split[0]);
+        var qualifier = split[1];
+        var color = split[2];
+        var bagToMove = bags.FirstOrDefault(x => x.Qualifier == qualifier && x.Color == color); //We first look top level, then through the contents
+
+        if(bagToMove != null)
+        {
+          for(var idx = 0; idx < amount; idx++)
+          {
+            current.Contents.Add(bagToMove);
+          }          
+        }
+      }
+    }
+
+    var p1 = 0; 
+
+    return OutputResult(p1.ToString());
+  }
+
+  public class Day7Bag
+  {
+    public string Qualifier { get; set; }
+
+    public string Color { get; set; }
+
+    public string Name => $"{Qualifier} {Color}";
+
+    public bool Searched { get; set; }
+
+    public List<Day7Bag> Contents { get; private set; }
+
+    public Day7Bag(string name, int amount)
+    {
+      var split = name.Split(' ');
+      Qualifier = split[0];
+      Color = split[1];
+
+      Contents = new List<Day7Bag>();
     }
   }
 
