@@ -466,6 +466,8 @@ public static partial class Days
       "dotted black bags contain no other bags."
     }; //We should parse this input in two stages. First, we need all the different colors of bags. We do this by only parsing the part before "bags" and then building a list of all possible bags.
 
+    //var inputs = File.ReadAllLines(Path.Combine(InputBasePath, "Day7.txt")); //Doesn't work yet AARRGGHH
+
     var bags = new List<Day7Bag>();
 
     foreach(var input in inputs)
@@ -480,47 +482,16 @@ public static partial class Days
     foreach(var input in inputs.Where(x => !x.Contains("no other bags")))
     {
       var bagName = input.Substring(0, input.IndexOf("bags")).Trim();
-      var current = bags.FirstOrDefault(x => x.Name == bagName);
+      var current = bags.First(x => x.Name == bagName);
+      var contents = input.Substring(input.IndexOf("contain") + "contain".Length).Split(',');
 
-      while(current == null)
-      {
-        foreach(var bag in bags) //Top level bags
-        {
-          if(current != null) break;
-
-          var localBag = bag;
-
-          while(localBag.Contents.Any(x => !x.Searched) && current == null)
-          {
-            current = localBag.Contents.FirstOrDefault(x => x.Name == bagName);
-
-            if(current == null)
-            {
-              localBag = localBag.Contents.First(x => !x.Searched);
-            }
-            else
-            {
-              break;
-            }
-
-            if(!localBag.Contents.Any())
-            {
-              localBag.Searched = true;
-            }
-          }
-        }
-        
-        //We're going to have to for a depth-first search in the bag contents.
-      }
-
-      var contents = input.Substring(input.IndexOf("contain")+"contain".Length).Split(',');
       foreach(var content in contents)
       {
         var split = content.Trim().Split(' ');
         var amount = int.Parse(split[0]);
         var qualifier = split[1];
         var color = split[2];
-        var bagToMove = bags.FirstOrDefault(x => x.Qualifier == qualifier && x.Color == color); //We first look top level, then through the contents
+        var bagToMove = bags.First(x => x.Qualifier == qualifier && x.Color == color); //We first look top level, then through the contents
 
         if(bagToMove != null)
         {
@@ -532,7 +503,28 @@ public static partial class Days
       }
     }
 
-    var p1 = 0; 
+    var p1 = 0; //We need to know what bags contain the shiny gold bag.
+
+    foreach(var bag in bags)
+    {
+      var localBag = bag;
+
+      while(localBag.Contents.Any(x => !x.Searched))
+      {
+        localBag = localBag.Contents.FirstOrDefault(x => !x.Searched);
+
+        if(localBag == null)
+        {
+          break;
+        }
+        else if(localBag.Name == "shiny gold")
+        {
+          p1++;
+          localBag.Contents.ForEach(b => b.Searched = true);
+          break;
+        }
+      }
+    }
 
     return OutputResult(p1.ToString());
   }
