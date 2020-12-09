@@ -673,7 +673,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day9: Todo
+  #region Day9: Solved!
 
   public static string Day9()
   {
@@ -756,6 +756,15 @@ public static partial class Days
   {
     candidate = numbers.FirstOrDefault(x => x == (target - source));
     return candidate != 0;
+  }
+
+  #endregion
+
+  #region Day10: Todo
+  
+  public static string Day10()
+  {
+    return OutputResult();
   }
 
   #endregion
