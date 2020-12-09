@@ -677,13 +677,35 @@ public static partial class Days
 
   public static string Day9()
   {
-    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day9.txt"));
+    var input = new []{
+"35",
+"20",
+"15",
+"25",
+"47",
+"40",
+"62",
+"55",
+"65",
+"95",
+"102",
+"117",
+"150",
+"182",
+"127",
+"219",
+"299",
+"277",
+"309",
+"576"};
+
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day9.txt"));
 
     var parsedInput = input
       .Select(long.Parse)
       .ToArray();
 
-    int preambleLength = 25;
+    int preambleLength = parsedInput.Length > 20 ? 25 : 5;
 
     long p1 = 0;
 
@@ -713,7 +735,43 @@ public static partial class Days
       }
     }
 
-    return OutputResult(p1.ToString());
+    long p2 = 0;
+
+    //Now that we have p1, we will use it to find p2. We must find a sequence of at least 2 numbers that add up to p1. Then, take the smallest and the largest number in this range, and add them together to get to p2.
+
+    for(var idx2 = 0; idx2 < parsedInput.Length; idx2++)
+    {
+      var candidates = new Queue<long>(parsedInput);
+      
+      while(candidates.Any() && p2 == 0)
+      {
+        var current = candidates.Dequeue();
+        
+        System.Console.WriteLine($"Attempting {current}");
+
+        var localQueue = new Queue<long>(candidates);
+        
+        var sum = current;
+
+        long highest = 0;
+
+        while(sum < p1 && localQueue.Any())
+        {
+          var add = localQueue.Dequeue();
+          
+          sum += add;
+          highest = Math.Max(highest, add);
+
+          if(sum.CanSumTo(p1, localQueue, out var _))
+          {
+            p2 = current + highest;
+            break;
+          }
+        }
+      }
+    }
+
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
   private static bool CanSumTo(this long source, long target, IEnumerable<long> numbers, out long candidate)
