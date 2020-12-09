@@ -57,7 +57,7 @@ public static partial class Days
     return OutputResult(part1, part2);
   }
 
-  private static bool CanSumTo(this int source, int target, Stack<int> numbers, out int candidate)
+  private static bool CanSumTo(this int source, int target, IEnumerable<int> numbers, out int candidate)
   {
     candidate = numbers.FirstOrDefault(x => x == (target - source));
     return candidate != 0;
@@ -670,5 +670,57 @@ public static partial class Days
         }
     }
   }
+
+  #endregion
+
+  #region Day9: Todo
+
+  public static string Day9()
+  {
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day9.txt"));
+
+    var parsedInput = input
+      .Select(long.Parse)
+      .ToArray();
+
+    int preambleLength = 25;
+
+    long p1 = 0;
+
+    for (int idx = preambleLength; idx < parsedInput.Length; idx++)
+    {
+      if(idx + 1 == parsedInput.Length)
+        break;
+
+      var candidateArray = parsedInput.Skip(idx - preambleLength).Take(preambleLength);
+      var candidates = new Queue<long>(candidateArray);
+      
+      var target = parsedInput[idx];
+      var valid = false;
+      
+      while(candidates.Any())
+      {
+        var current = candidates.Dequeue();
+
+        valid |= current.CanSumTo(target, candidateArray, out var _);
+      }
+
+      if(!valid)
+      {
+        System.Console.WriteLine($"{target} is not valid!");
+        p1 = target;
+        break;
+      }
+    }
+
+    return OutputResult(p1.ToString());
+  }
+
+  private static bool CanSumTo(this long source, long target, IEnumerable<long> numbers, out long candidate)
+  {
+    candidate = numbers.FirstOrDefault(x => x == (target - source));
+    return candidate != 0;
+  }
+
   #endregion
 }
