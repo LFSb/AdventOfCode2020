@@ -677,29 +677,7 @@ public static partial class Days
 
   public static string Day9()
   {
-    var input = new []{
-"35",
-"20",
-"15",
-"25",
-"47",
-"40",
-"62",
-"55",
-"65",
-"95",
-"102",
-"117",
-"150",
-"182",
-"127",
-"219",
-"299",
-"277",
-"309",
-"576"};
-
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day9.txt"));
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day9.txt"));
 
     var parsedInput = input
       .Select(long.Parse)
@@ -742,17 +720,16 @@ public static partial class Days
     for(var idx2 = 0; idx2 < parsedInput.Length; idx2++)
     {
       var candidates = new Queue<long>(parsedInput);
-      
+
       while(candidates.Any() && p2 == 0)
       {
         var current = candidates.Dequeue();
         
-        System.Console.WriteLine($"Attempting {current}");
-
         var localQueue = new Queue<long>(candidates);
         
         var sum = current;
-
+        
+        long smallest = long.MaxValue;
         long highest = 0;
 
         while(sum < p1 && localQueue.Any())
@@ -761,10 +738,11 @@ public static partial class Days
           
           sum += add;
           highest = Math.Max(highest, add);
+          smallest = Math.Min(smallest, add);
 
           if(sum.CanSumTo(p1, localQueue, out var _))
           {
-            p2 = current + highest;
+            p2 = smallest + highest;
             break;
           }
         }
