@@ -770,7 +770,7 @@ public static partial class Days
 
     var sortedQueue = new Queue<int>(input.OrderBy(x => x));
 
-    int current = 0; int oneJolt = 0; int threeJolt = 1;
+    int current = 0; int oneJolt = 0; int threeJolt = 1; //p1: pretty easy, just order from low to high and count the amount of times the diff is either one or three.
 
     while (sortedQueue.Any())
     {
@@ -792,7 +792,43 @@ public static partial class Days
 
     var p1 = oneJolt * threeJolt;
 
-    return OutputResult(p1.ToString());
+    //p2: A bit more difficult, instead of just ordering them, we need to find out how many valid combinations there are to get to the highest value. A valid adapter has a rating of either 1, 2 or 3 jolts higher than the current one.
+
+    var list = input.OrderBy(x => x).ToList();
+
+    //We're going to add both the outlet as well as the device itself as valid points in order to calculate the valid amount of combinations.
+
+    list.Insert(0, 0);
+    list.Insert(input.Length - 1, input.Max() + 3);
+
+    var p2 = new long[list.Count];
+
+    for (var index = 0; index < p2.Length; index++)
+    {
+      p2[index] = index == 0 ? 1 : 0;
+
+      for (var index2 = index - 1; index2 >= 0; index2--)
+      {
+        if (list[index] - list[index2] <= 3)
+          p2[index] += p2[index2];
+        else
+          break;
+      }
+    }
+
+    return OutputResult(p1.ToString(), p2[p2.Length - 1].ToString());
+  }
+
+  private static int ValidCombinations(this int input, int[] adapters, int target)
+  {
+    var candidates = adapters.Where(x => x > input && x < (input + 4));
+
+    if (candidates.Contains(target))
+    {
+      return 1;
+    }
+
+    return candidates.Sum(x => x.ValidCombinations(adapters, target));
   }
 
   #endregion
