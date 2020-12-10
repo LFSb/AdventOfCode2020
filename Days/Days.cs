@@ -689,23 +689,23 @@ public static partial class Days
 
     for (int idx = preambleLength; idx < parsedInput.Length; idx++)
     {
-      if(idx + 1 == parsedInput.Length)
+      if (idx + 1 == parsedInput.Length)
         break;
 
       var candidateArray = parsedInput.Skip(idx - preambleLength).Take(preambleLength);
       var candidates = new Queue<long>(candidateArray);
-      
+
       var target = parsedInput[idx];
       var valid = false;
-      
-      while(candidates.Any())
+
+      while (candidates.Any())
       {
         var current = candidates.Dequeue();
 
         valid |= current.CanSumTo(target, candidateArray, out var _);
       }
 
-      if(!valid)
+      if (!valid)
       {
         System.Console.WriteLine($"{target} is not valid!");
         p1 = target;
@@ -717,30 +717,30 @@ public static partial class Days
 
     //Now that we have p1, we will use it to find p2. We must find a sequence of at least 2 numbers that add up to p1. Then, take the smallest and the largest number in this range, and add them together to get to p2.
 
-    for(var idx2 = 0; idx2 < parsedInput.Length; idx2++)
+    for (var idx2 = 0; idx2 < parsedInput.Length; idx2++)
     {
       var candidates = new Queue<long>(parsedInput);
 
-      while(candidates.Any() && p2 == 0)
+      while (candidates.Any() && p2 == 0)
       {
         var current = candidates.Dequeue();
-        
+
         var localQueue = new Queue<long>(candidates);
-        
+
         var sum = current;
-        
+
         long smallest = long.MaxValue;
         long highest = 0;
 
-        while(sum < p1 && localQueue.Any())
+        while (sum < p1 && localQueue.Any())
         {
           var add = localQueue.Dequeue();
-          
+
           sum += add;
           highest = Math.Max(highest, add);
           smallest = Math.Min(smallest, add);
 
-          if(sum.CanSumTo(p1, localQueue, out var _))
+          if (sum.CanSumTo(p1, localQueue, out var _))
           {
             p2 = smallest + highest;
             break;
@@ -761,10 +761,38 @@ public static partial class Days
   #endregion
 
   #region Day10: Todo
-  
+
   public static string Day10()
   {
-    return OutputResult();
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day10.txt"))
+    .Select(int.Parse)
+    .ToArray();
+
+    var sortedQueue = new Queue<int>(input.OrderBy(x => x));
+
+    int current = 0; int oneJolt = 0; int threeJolt = 1;
+
+    while (sortedQueue.Any())
+    {
+      var next = sortedQueue.Dequeue();
+
+      var diff = Math.Abs(next - current);
+
+      if (diff == 1)
+      {
+        oneJolt++;
+      }
+      else if (diff == 3)
+      {
+        threeJolt++;
+      }
+
+      current = next;
+    }
+
+    var p1 = oneJolt * threeJolt;
+
+    return OutputResult(p1.ToString());
   }
 
   #endregion
