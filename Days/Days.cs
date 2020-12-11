@@ -850,14 +850,22 @@ public static partial class Days
       "L.LLLLL.LL"
     };
 
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
+    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
 
+    var p1 = CalculateDay11(input, 4);
+    var p2 = CalculateDay11(input, 5);
+
+    return OutputResult(p1.ToString(), p2.ToString());
+  }
+
+  private static int CalculateDay11(string[] input, int limit)
+  {
     var grid = new Day11Grid(input);
     var previousDiff = 0;
 
     while(true)
     {
-      var diff = grid.Occupy(4);
+      var diff = grid.Occupy(limit);
       
       if(previousDiff == diff)
       {
@@ -865,11 +873,9 @@ public static partial class Days
       }
       
       previousDiff = diff;
-    }   
+    }
     
-    var p1 = grid.OccupiedSeats;
-
-    return OutputResult(p1.ToString());
+    return grid.OccupiedSeats;
   }
 
   public class Day11Grid
@@ -933,6 +939,7 @@ public static partial class Days
       return input == '#';
     }
 
+    //Just count the adjacent seats in a 3x3 grid around the current position.
     private int CountOccupiedAdjacentSeats(int row, int seat)
     {
       var count = 0;
@@ -958,9 +965,19 @@ public static partial class Days
       return count;
     }
 
+    //This one is going to be a bit more difficult, we're going to have to look for the first seat that is "visible" from a certain seat.
+    //This means that just looking one seat the left, right etc is not enough, we have to travel the grid until we find either the edge of the grid, or we find a seat.
+    //For left/right this is easy, just start looking from the index in the grid of the current position, and start traveling backwards in seats until you either find a value or the edge of the grid. This also works for up/down. Diag though...
+    private int CountOccupiedVisibleSeats(int row, int seat)
+    {
+      var count = 0; 
+      
+      return count;
+    }
+
     public int Occupy(int limit)
     {
-      var localGrid = new Day11Grid(OutputGrid).Grid; //First, copy the Grid locally. We wanna occupy the seats in this copy based on the occupation in the grid of the current context.
+      var localGrid = new Day11Grid(OutputGrid).Grid;
       
       var changed = 0;
 
@@ -968,7 +985,9 @@ public static partial class Days
       {
         for(var seat = 0; seat < Grid[row].Length; seat++)
         {
-          var occupiedSeats = CountOccupiedAdjacentSeats(row, seat);
+          var occupiedSeats = limit == 4 
+            ? CountOccupiedAdjacentSeats(row, seat) 
+            : CountOccupiedVisibleSeats(row, seat);
 
           var isOccupied = Grid[row][seat];
 
