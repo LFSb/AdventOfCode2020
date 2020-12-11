@@ -836,28 +836,38 @@ public static partial class Days
   #region Day11: Todo:
   public static string Day11()
   {
-    var input = new []
-    {
-      "L.LL.LL.LL",
-      "LLLLLLL.LL",
-      "L.L.L..L..",
-      "LLLL.LL.LL",
-      "L.LL.LL.LL",
-      "L.LLLLL.LL",
-      "..L.L.....",
-      "LLLLLLLLLL",
-      "L.LLLLLL.L",
-      "L.LLLLL.LL"
-    };
+    // var input = new []
+    // {
+    //   "L.LL.LL.LL",
+    //   "LLLLLLL.LL",
+    //   "L.L.L..L..",
+    //   "LLLL.LL.LL",
+    //   "L.LL.LL.LL",
+    //   "L.LLLLL.LL",
+    //   "..L.L.....",
+    //   "LLLLLLLLLL",
+    //   "L.LLLLLL.L",
+    //   "L.LLLLL.LL"
+    // };
+
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
 
     var grid = new Day11Grid(input);
-    var diff = 0;
+    var previousDiff = 0;
 
-    do
+    while(true)
     {
-      diff = Math.Abs(grid.Occupy() - diff);
-    }    
-    while(diff != 0);   
+      var diff = grid.Occupy();
+      
+      if(previousDiff == diff)
+      {
+        break;
+      }
+      else
+      {
+        previousDiff = diff;
+      }
+    }   
     
     var p1 = grid.OccupiedSeats;
 
@@ -939,7 +949,7 @@ public static partial class Days
           {
             var seatIndex = seat + seatOffSet;
 
-            if(seatIndex >= 0 && seatIndex < Grid[rowIndex].Length)
+            if(seatIndex >= 0 && seatIndex < Grid[rowIndex].Length && !(rowOffSet == 0 && seatOffSet == 0)) //We wanna filter out the current seat, which is 0,0.
             {
               count += (Grid[rowIndex][seatIndex] ?? false) ? 1 : 0;
             }
