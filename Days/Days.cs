@@ -836,37 +836,35 @@ public static partial class Days
   #region Day11: Todo:
   public static string Day11()
   {
-    // var input = new []
-    // {
-    //   "L.LL.LL.LL",
-    //   "LLLLLLL.LL",
-    //   "L.L.L..L..",
-    //   "LLLL.LL.LL",
-    //   "L.LL.LL.LL",
-    //   "L.LLLLL.LL",
-    //   "..L.L.....",
-    //   "LLLLLLLLLL",
-    //   "L.LLLLLL.L",
-    //   "L.LLLLL.LL"
-    // };
+    var input = new []
+    {
+      "L.LL.LL.LL",
+      "LLLLLLL.LL",
+      "L.L.L..L..",
+      "LLLL.LL.LL",
+      "L.LL.LL.LL",
+      "L.LLLLL.LL",
+      "..L.L.....",
+      "LLLLLLLLLL",
+      "L.LLLLLL.L",
+      "L.LLLLL.LL"
+    };
 
-    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
 
     var grid = new Day11Grid(input);
     var previousDiff = 0;
 
     while(true)
     {
-      var diff = grid.Occupy();
+      var diff = grid.Occupy(4);
       
       if(previousDiff == diff)
       {
         break;
       }
-      else
-      {
-        previousDiff = diff;
-      }
+      
+      previousDiff = diff;
     }   
     
     var p1 = grid.OccupiedSeats;
@@ -910,13 +908,13 @@ public static partial class Days
     {
       OutputGrid = new string[Grid.Length];
       
-      for(var idx = 0; idx < Grid.Length; idx++)
+      for(var row = 0; row < Grid.Length; row++)
       {
-        var line = Grid[idx];
+        var line = Grid[row];
 
-        for(var idx2 = 0; idx2 < line.Length; idx2++)
+        for(var seat = 0; seat < line.Length; seat++)
         {
-          OutputGrid[idx] += ConvertFrom(Grid[idx][idx2]);
+          OutputGrid[row] += ConvertFrom(Grid[row][seat]);
         }
       }
     }
@@ -960,7 +958,7 @@ public static partial class Days
       return count;
     }
 
-    public int Occupy()
+    public int Occupy(int limit)
     {
       var localGrid = new Day11Grid(OutputGrid).Grid; //First, copy the Grid locally. We wanna occupy the seats in this copy based on the occupation in the grid of the current context.
       
@@ -976,7 +974,7 @@ public static partial class Days
 
           if(isOccupied != null)
           {
-            var newValue = (bool?)(!isOccupied.Value ? occupiedSeats == 0 : occupiedSeats < 4);
+            var newValue = (bool?)(!isOccupied.Value ? occupiedSeats == 0 : occupiedSeats < limit);
             
             if(newValue != Grid[row][seat])
             {
