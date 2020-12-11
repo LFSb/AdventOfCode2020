@@ -760,7 +760,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day10: Todo
+  #region Day10: Solved!
 
   public static string Day10()
   {
@@ -831,5 +831,169 @@ public static partial class Days
     return candidates.Sum(x => x.ValidCombinations(adapters, target));
   }
 
+  #endregion
+
+  #region Day11: Todo:
+  public static string Day11()
+  {
+    var input = new []
+    {
+      "L.LL.LL.LL",
+      "LLLLLLL.LL",
+      "L.L.L..L..",
+      "LLLL.LL.LL",
+      "L.LL.LL.LL",
+      "L.LLLLL.LL",
+      "..L.L.....",
+      "LLLLLLLLLL",
+      "L.LLLLLL.L",
+      "L.LLLLL.LL"
+    };
+
+    var grid = new Day11Grid(input);
+    var diff = 0;
+
+    do
+    {
+      diff = Math.Abs(grid.Occupy() - diff);
+    }    
+    while(diff != 0);   
+    
+    var p1 = grid.OccupiedSeats;
+
+    return OutputResult(p1.ToString());
+  }
+
+  public class Day11Grid
+  {
+    public bool?[][] Grid { get; set; }
+
+    public string[] OutputGrid { get; set; }
+
+    public int OccupiedSeats => Grid.Sum(x => x.Count(y => (y ?? false)));
+
+    public Day11Grid(string[] input)
+    {
+      BuildInputGrid(input);
+    }
+
+    public void BuildInputGrid(string[] input)
+    {
+      Grid = new bool?[input.Length][];
+
+      for(var idx = 0; idx < input.Length; idx++)
+      {
+        var line = input[idx];
+        
+        Grid[idx] = new bool?[line.Length];
+
+        for(var idx2 = 0; idx2 < line.Length; idx2++)
+        {
+          Grid[idx][idx2] = ConvertTo(line[idx2]);
+        }
+      }
+
+      BuildOutputGrid();
+    }
+
+    public void BuildOutputGrid()
+    {
+      OutputGrid = new string[Grid.Length];
+      
+      for(var idx = 0; idx < Grid.Length; idx++)
+      {
+        var line = Grid[idx];
+
+        for(var idx2 = 0; idx2 < line.Length; idx2++)
+        {
+          OutputGrid[idx] += ConvertFrom(Grid[idx][idx2]);
+        }
+      }
+    }
+
+    private static char ConvertFrom(bool? input)
+    {
+      if(!input.HasValue) return '.';
+
+      return input.Value ? '#' : 'L';
+    }
+
+    private static bool? ConvertTo(char input)
+    {
+      if(input == '.') return null;
+
+      return input == '#';
+    }
+
+    private int CountOccupiedAdjacentSeats(int row, int seat)
+    {
+      var count = 0;
+      
+      for(var rowOffSet = -1; rowOffSet < 2; rowOffSet++)
+      {
+        var rowIndex = row + rowOffSet;
+
+        if(rowIndex >= 0 && rowIndex < Grid.Length)
+        {
+          for(var seatOffSet = -1; seatOffSet < 2; seatOffSet++)
+          {
+            var seatIndex = seat + seatOffSet;
+
+            if(seatIndex >= 0 && seatIndex < Grid[rowIndex].Length)
+            {
+              count += (Grid[rowIndex][seatIndex] ?? false) ? 1 : 0;
+            }
+          }
+        }        
+      }
+
+      return count;
+    }
+
+    public int Occupy()
+    {
+      var localGrid = new Day11Grid(OutputGrid).Grid; //First, copy the Grid locally. We wanna occupy the seats in this copy based on the occupation in the grid of the current context.
+      
+      var changed = 0;
+
+      for(var row = 0; row < Grid.Length; row++)
+      {
+        for(var seat = 0; seat < Grid[row].Length; seat++)
+        {
+          var occupiedSeats = CountOccupiedAdjacentSeats(row, seat);
+
+          var isOccupied = Grid[row][seat];
+
+          if(isOccupied != null)
+          {
+            var newValue = (bool?)(!isOccupied.Value ? occupiedSeats == 0 : occupiedSeats < 4);
+            
+            if(newValue != Grid[row][seat])
+            {
+              changed++;
+            }
+
+            localGrid[row][seat] = newValue;
+          }          
+        }
+      }
+
+      Grid = localGrid;
+      
+      BuildOutputGrid();
+
+      return changed;
+    }
+
+    public bool CalculateOccupation(bool currentValue, int occupiedSeats)
+    {
+      if(!currentValue)
+      {
+        return occupiedSeats == 0;
+      }
+
+      return occupiedSeats < 4;
+    }
+  }
   #endregion
 }
