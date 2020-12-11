@@ -971,7 +971,14 @@ public static partial class Days
     private int CountOccupiedVisibleSeats(int row, int seat)
     {
       var count = 0; 
-      
+
+
+      for(var x = -1; x <= 1; x++)
+      {
+        for(var y = -1; y <= 1; y++)
+        {} //There was a good idea here, but what? Ah yes, use the x/y values as a "direction" in which to look.
+      }
+
       return count;
     }
 
