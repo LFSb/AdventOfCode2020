@@ -1101,52 +1101,14 @@ public static partial class Days
           //F means to move forward to the waypoint X times. The waypoint's position is relative, so when the ship moves, the waypoint moves equally.
           //The waypoint starts at X: -10 Y: 1
 
-          System.Console.WriteLine(line);
-
           switch (action)
           {
             case 'N': yOffset += distance; break;
             case 'S': yOffset -= distance; break;
             case 'E': xOffset += distance; break;
             case 'W': xOffset -= distance; break;
-            case 'L':
-              {
-                //Rotate the waypoint around counter-clockwise by distance degrees.
-                var rotations = distance / 90; //If the distance is 180, we should rotate twice.
-                
-                while(rotations > 0)
-                {
-                  var mem = yOffset;
-
-                  yOffset = xOffset;
-                  
-                  xOffset = -(mem);
-                  rotations--;
-                }
-                
-                //By rotating counter-clockwise 90 degrees, the positive value on the Y axis becomes a negative value on the X axis.
-                //The negative value on the X axis becomes a negative value on the Y axis. The negative value on the Y axis becomes a positive value on the X axis, and a positive value on the X axis becomes a positive value on the Y axis.
-                
-              }
-              break;
-            case 'R':
-              {
-                var rotations = distance / 90;
-                
-                //By rotating clockwise 90 degrees, the positive value on the Y axis becomes a positive value on the X axis. The positive value on the X axis becomes the negative value on the Y axis.
-                //The negative value on the Y axis becomes a negative value on the X axis, and a negative value on the X axis becomes a positive value on the Y axis.
-
-                while(rotations > 0)
-                {
-                  var mem = xOffset;
-
-                  xOffset = yOffset;
-                  
-                  yOffset = -(mem);
-                  rotations--;
-                }
-              }
-              break;
+            case 'L': Rotate(ref xOffset, ref yOffset, distance / 90, false); break;
+            case 'R': Rotate(ref xOffset, ref yOffset, distance / 90, true); break;
             case 'F':
               {
                 for (var idx = 0; idx < distance; idx++)
@@ -1158,6 +1120,36 @@ public static partial class Days
               break;
           }
         }
+      }
+    }
+
+    //direction = true = clockwise
+    public void Rotate(ref int xOffset, ref int yOffset, int rotations, bool direction)
+    {
+      //By rotating clockwise 90 degrees, the positive value on the Y axis becomes a positive value on the X axis. The positive value on the X axis becomes the negative value on the Y axis.
+      //The negative value on the Y axis becomes a negative value on the X axis, and a negative value on the X axis becomes a positive value on the Y axis.
+
+      //By rotating counter-clockwise 90 degrees, the positive value on the Y axis becomes a negative value on the X axis.
+      //The negative value on the X axis becomes a negative value on the Y axis. The negative value on the Y axis becomes a positive value on the X axis, and a positive value on the X axis becomes a positive value on the Y axis.
+
+      //Simplified: If rotating clockwise, X becomes Y, and Y becomes the inverse of X. If rotating counter-clockwise, Y becomes X, and X becomes the inverse of Y.
+      
+      while (rotations > 0)
+      {
+        var mem = direction ? xOffset : yOffset;
+
+        if (direction)
+        {
+          xOffset = yOffset;
+          yOffset = -(mem);
+        }
+        else
+        {
+          yOffset = xOffset;
+          xOffset = -(mem);
+        }
+
+        rotations--;
       }
     }
 
