@@ -850,18 +850,18 @@ public static partial class Days
     var grid = new Day11Grid(input);
     var previousDiff = 0;
 
-    while(true)
+    while (true)
     {
       var diff = grid.Occupy(limit);
-      
-      if(previousDiff == diff)
+
+      if (previousDiff == diff)
       {
         break;
       }
-      
+
       previousDiff = diff;
     }
-    
+
     return grid.OccupiedSeats;
   }
 
@@ -882,13 +882,13 @@ public static partial class Days
     {
       Grid = new bool?[input.Length][];
 
-      for(var idx = 0; idx < input.Length; idx++)
+      for (var idx = 0; idx < input.Length; idx++)
       {
         var line = input[idx];
-        
+
         Grid[idx] = new bool?[line.Length];
 
-        for(var idx2 = 0; idx2 < line.Length; idx2++)
+        for (var idx2 = 0; idx2 < line.Length; idx2++)
         {
           Grid[idx][idx2] = ConvertTo(line[idx2]);
         }
@@ -900,12 +900,12 @@ public static partial class Days
     public void BuildOutputGrid()
     {
       OutputGrid = new string[Grid.Length];
-      
-      for(var row = 0; row < Grid.Length; row++)
+
+      for (var row = 0; row < Grid.Length; row++)
       {
         var line = Grid[row];
 
-        for(var seat = 0; seat < line.Length; seat++)
+        for (var seat = 0; seat < line.Length; seat++)
         {
           OutputGrid[row] += ConvertFrom(Grid[row][seat]);
         }
@@ -914,14 +914,14 @@ public static partial class Days
 
     private static char ConvertFrom(bool? input)
     {
-      if(!input.HasValue) return '.';
+      if (!input.HasValue) return '.';
 
       return input.Value ? '#' : 'L';
     }
 
     private static bool? ConvertTo(char input)
     {
-      if(input == '.') return null;
+      if (input == '.') return null;
 
       return input == '#';
     }
@@ -930,23 +930,23 @@ public static partial class Days
     public int CountOccupiedAdjacentSeats(int row, int seat)
     {
       var count = 0;
-      
-      for(var rowOffSet = -1; rowOffSet < 2; rowOffSet++)
+
+      for (var rowOffSet = -1; rowOffSet < 2; rowOffSet++)
       {
         var rowIndex = row + rowOffSet;
 
-        if(rowIndex >= 0 && rowIndex < Grid.Length)
+        if (rowIndex >= 0 && rowIndex < Grid.Length)
         {
-          for(var seatOffSet = -1; seatOffSet < 2; seatOffSet++)
+          for (var seatOffSet = -1; seatOffSet < 2; seatOffSet++)
           {
             var seatIndex = seat + seatOffSet;
 
-            if(seatIndex >= 0 && seatIndex < Grid[rowIndex].Length && !(rowOffSet == 0 && seatOffSet == 0)) //We wanna filter out the current seat, which is 0,0.
+            if (seatIndex >= 0 && seatIndex < Grid[rowIndex].Length && !(rowOffSet == 0 && seatOffSet == 0)) //We wanna filter out the current seat, which is 0,0.
             {
               count += (Grid[rowIndex][seatIndex] ?? false) ? 1 : 0;
             }
           }
-        }        
+        }
       }
 
       return count;
@@ -957,16 +957,16 @@ public static partial class Days
     //We're going to use two indices as "directions" that we'll use to walk the grid until we either find a seat, or the edge of the grid.
     public int CountOccupiedVisibleSeats(int row, int seat)
     {
-      var count = 0; 
-      
-      for(var x = -1; x <= 1; x++)
+      var count = 0;
+
+      for (var x = -1; x <= 1; x++)
       {
-        for(var y = -1; y <= 1; y++)
+        for (var y = -1; y <= 1; y++)
         {
           var xOffset = 0;
           var yOffset = 0;
 
-          while(true)
+          while (true)
           {
             xOffset += x;
             yOffset += y;
@@ -974,12 +974,12 @@ public static partial class Days
             var newRow = row + xOffset;
             var newSeat = seat + yOffset;
 
-            if((x == 0 && y == 0) || newRow < 0 || newSeat < 0 || newRow >= Grid.Length || newSeat >= Grid[newRow].Length) //If we've reached out of bounds or our search direction leads to nowhere, break.
+            if ((x == 0 && y == 0) || newRow < 0 || newSeat < 0 || newRow >= Grid.Length || newSeat >= Grid[newRow].Length) //If we've reached out of bounds or our search direction leads to nowhere, break.
             {
               break;
             }
 
-            if(Grid[newRow][newSeat].HasValue)
+            if (Grid[newRow][newSeat].HasValue)
             {
               count += Grid[newRow][newSeat].Value ? 1 : 0;
               break;
@@ -994,35 +994,35 @@ public static partial class Days
     public int Occupy(int limit)
     {
       var localGrid = new Day11Grid(OutputGrid).Grid;
-      
+
       var changed = 0;
 
-      for(var row = 0; row < Grid.Length; row++)
+      for (var row = 0; row < Grid.Length; row++)
       {
-        for(var seat = 0; seat < Grid[row].Length; seat++)
+        for (var seat = 0; seat < Grid[row].Length; seat++)
         {
-          var occupiedSeats = limit == 4 
-            ? CountOccupiedAdjacentSeats(row, seat) 
+          var occupiedSeats = limit == 4
+            ? CountOccupiedAdjacentSeats(row, seat)
             : CountOccupiedVisibleSeats(row, seat);
 
           var isOccupied = Grid[row][seat];
 
-          if(isOccupied != null)
+          if (isOccupied != null)
           {
             var newValue = (bool?)(!isOccupied.Value ? occupiedSeats == 0 : occupiedSeats < limit);
-            
-            if(newValue != Grid[row][seat])
+
+            if (newValue != Grid[row][seat])
             {
               changed++;
             }
 
             localGrid[row][seat] = newValue;
-          }          
+          }
         }
       }
 
       Grid = localGrid;
-      
+
       BuildOutputGrid();
 
       return changed;
@@ -1031,10 +1031,120 @@ public static partial class Days
   #endregion
 
   #region Day12: todo
+
   public static string Day12()
   {
-    return OutputResult();
+    var input = new[]{
+      "F10",
+      "N3",
+      "F7",
+      "R90",
+      "F11"};
+
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
+
+    var grid = new Day12Grid(input);
+    
+    System.Console.WriteLine($"X:{grid.X} Y:{grid.Y}");
+
+    var p1 = grid.ManhattanDistance;
+
+    return OutputResult(p1.ToString());
   }
+
+  public class Day12Grid
+  {
+    public int X { get; set; }
+
+    public int Y { get; set; }
+
+    public Day12Directions CurrentDirection { get; set; }
+
+    public int ManhattanDistance => Math.Abs(X) + Math.Abs(Y);
+
+    public Day12Grid(string[] input)
+    {
+      CurrentDirection = Day12Directions.East; //We start off east.
+
+      foreach (var line in input)
+      {
+        var action = line[0];
+        var distance = int.Parse(line.Substring(1));
+
+        //Only L and R change the current Direction.
+
+        switch (action)
+        {
+          case 'N':
+            {
+              Y += distance;
+            }
+            break;
+          case 'S':
+            {
+              Y -= distance;
+            }
+            break;
+          case 'E':
+            {
+              X -= distance;
+            }
+            break;
+          case 'W':
+            {
+              X += distance;
+            }
+            break;
+          case 'L':
+            {
+              System.Console.WriteLine($"{line}, current {CurrentDirection}");
+              CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection + distance)) % 360);
+              System.Console.WriteLine($"now {CurrentDirection}");
+            }
+            break;
+          case 'R':
+            {
+              System.Console.WriteLine($"{line}, current {CurrentDirection}");
+              CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection - distance)) % 360);
+              System.Console.WriteLine($"now {CurrentDirection}");
+            }
+            break;
+          case 'F':
+            {
+              switch(CurrentDirection)
+              {
+                case Day12Directions.West:
+                {
+                  X += distance;
+                } break;
+                case Day12Directions.East:
+                {
+                  X -= distance;
+                } break;
+                case Day12Directions.North:
+                {
+                  Y += distance;
+                } break;
+                case Day12Directions.South:
+                {
+                  Y -= distance;
+                } break;
+              }
+            }
+            break;
+        }
+      }
+    }
+  }
+
+  public enum Day12Directions
+  {
+    North = 0,
+    West  = 90,
+    South = 180,
+    East  = 270    
+  }
+
   #endregion
 
   #region Day13: todo
