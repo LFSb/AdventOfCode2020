@@ -833,24 +833,11 @@ public static partial class Days
 
   #endregion
 
-  #region Day11: Todo:
+  #region Day11: Solved!
+
   public static string Day11()
   {
-    var input = new []
-    {
-      "L.LL.LL.LL",
-      "LLLLLLL.LL",
-      "L.L.L..L..",
-      "LLLL.LL.LL",
-      "L.LL.LL.LL",
-      "L.LLLLL.LL",
-      "..L.L.....",
-      "LLLLLLLLLL",
-      "L.LLLLLL.L",
-      "L.LLLLL.LL"
-    };
-
-    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day11.txt"));
 
     var p1 = CalculateDay11(input, 4);
     var p2 = CalculateDay11(input, 5);
@@ -940,7 +927,7 @@ public static partial class Days
     }
 
     //Just count the adjacent seats in a 3x3 grid around the current position.
-    private int CountOccupiedAdjacentSeats(int row, int seat)
+    public int CountOccupiedAdjacentSeats(int row, int seat)
     {
       var count = 0;
       
@@ -967,16 +954,38 @@ public static partial class Days
 
     //This one is going to be a bit more difficult, we're going to have to look for the first seat that is "visible" from a certain seat.
     //This means that just looking one seat the left, right etc is not enough, we have to travel the grid until we find either the edge of the grid, or we find a seat.
-    //For left/right this is easy, just start looking from the index in the grid of the current position, and start traveling backwards in seats until you either find a value or the edge of the grid. This also works for up/down. Diag though...
-    private int CountOccupiedVisibleSeats(int row, int seat)
+    //We're going to use two indices as "directions" that we'll use to walk the grid until we either find a seat, or the edge of the grid.
+    public int CountOccupiedVisibleSeats(int row, int seat)
     {
       var count = 0; 
-
-
+      
       for(var x = -1; x <= 1; x++)
       {
         for(var y = -1; y <= 1; y++)
-        {} //There was a good idea here, but what? Ah yes, use the x/y values as a "direction" in which to look.
+        {
+          var xOffset = 0;
+          var yOffset = 0;
+
+          while(true)
+          {
+            xOffset += x;
+            yOffset += y;
+
+            var newRow = row + xOffset;
+            var newSeat = seat + yOffset;
+
+            if((x == 0 && y == 0) || newRow < 0 || newSeat < 0 || newRow >= Grid.Length || newSeat >= Grid[newRow].Length) //If we've reached out of bounds or our search direction leads to nowhere, break.
+            {
+              break;
+            }
+
+            if(Grid[newRow][newSeat].HasValue)
+            {
+              count += Grid[newRow][newSeat].Value ? 1 : 0;
+              break;
+            }
+          }
+        }
       }
 
       return count;
@@ -1017,16 +1026,6 @@ public static partial class Days
       BuildOutputGrid();
 
       return changed;
-    }
-
-    public bool CalculateOccupation(bool currentValue, int occupiedSeats)
-    {
-      if(!currentValue)
-      {
-        return occupiedSeats == 0;
-      }
-
-      return occupiedSeats < 4;
     }
   }
   #endregion
