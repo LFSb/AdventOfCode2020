@@ -1034,14 +1034,7 @@ public static partial class Days
 
   public static string Day12()
   {
-    var input = new[]{
-      "F10",
-      "N3",
-      "F7",
-      "R90",
-      "F11",};
-
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
 
     var p1 = new Day12Grid(input).ManhattanDistance;
     var p2 = new Day12Grid(input, false).ManhattanDistance;
@@ -1063,7 +1056,7 @@ public static partial class Days
     {
       CurrentDirection = Day12Directions.East; //We start off east.
 
-      var xOffset = 10;
+      var xOffset = 10; //p2: The waypoint starts at 10 east, 1 north.
       var yOffset = 1;
 
       foreach (var line in input)
@@ -1092,6 +1085,7 @@ public static partial class Days
         }
         else
         {
+          //Part 2:
           //Turns out, we're moving a waypoint, not the ship itself.
 
           //N, S, E, W: Move the waypoint north/south/east/west.
@@ -1099,8 +1093,7 @@ public static partial class Days
           //R: rotate the waypoint right (clockwise)
 
           //F means to move forward to the waypoint X times. The waypoint's position is relative, so when the ship moves, the waypoint moves equally.
-          //The waypoint starts at X: -10 Y: 1
-
+          
           switch (action)
           {
             case 'N': yOffset += distance; break;
@@ -1133,7 +1126,7 @@ public static partial class Days
       //The negative value on the X axis becomes a negative value on the Y axis. The negative value on the Y axis becomes a positive value on the X axis, and a positive value on the X axis becomes a positive value on the Y axis.
 
       //Simplified: If rotating clockwise, X becomes Y, and Y becomes the inverse of X. If rotating counter-clockwise, Y becomes X, and X becomes the inverse of Y.
-      
+
       while (rotations > 0)
       {
         var mem = direction ? xOffset : yOffset;
