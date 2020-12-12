@@ -1039,12 +1039,12 @@ public static partial class Days
       "N3",
       "F7",
       "R90",
-      "F11"};
+      "F11",};
 
     input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
 
     var grid = new Day12Grid(input);
-    
+
     System.Console.WriteLine($"X:{grid.X} Y:{grid.Y}");
 
     var p1 = grid.ManhattanDistance;
@@ -1075,64 +1075,47 @@ public static partial class Days
 
         switch (action)
         {
-          case 'N':
-            {
-              Y += distance;
-            }
-            break;
-          case 'S':
-            {
-              Y -= distance;
-            }
-            break;
-          case 'E':
-            {
-              X -= distance;
-            }
-            break;
-          case 'W':
-            {
-              X += distance;
-            }
-            break;
-          case 'L':
-            {
-              System.Console.WriteLine($"{line}, current {CurrentDirection}");
-              CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection + distance)) % 360);
-              System.Console.WriteLine($"now {CurrentDirection}");
-            }
-            break;
-          case 'R':
-            {
-              System.Console.WriteLine($"{line}, current {CurrentDirection}");
-              CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection - distance)) % 360);
-              System.Console.WriteLine($"now {CurrentDirection}");
-            }
-            break;
-          case 'F':
-            {
-              switch(CurrentDirection)
-              {
-                case Day12Directions.West:
-                {
-                  X += distance;
-                } break;
-                case Day12Directions.East:
-                {
-                  X -= distance;
-                } break;
-                case Day12Directions.North:
-                {
-                  Y += distance;
-                } break;
-                case Day12Directions.South:
-                {
-                  Y -= distance;
-                } break;
-              }
-            }
-            break;
+          case 'N': Move(Day12Directions.North, distance); break;
+
+          case 'S': Move(Day12Directions.South, distance); break;
+
+          case 'E': Move(Day12Directions.East, distance); break;
+
+          case 'W': Move(Day12Directions.West, distance); break;
+
+          case 'L': CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection + -distance + 360))  % 360); break;
+
+          case 'R': CurrentDirection = (Day12Directions)(((int)CurrentDirection + distance) % 360); break;
+
+          case 'F': Move(CurrentDirection, distance); break;
         }
+      }
+    }
+
+    public void Move(Day12Directions orientation, int distance)
+    {
+      switch (orientation)
+      {
+        case Day12Directions.West:
+          {
+            X += distance;
+          }
+          break;
+        case Day12Directions.East:
+          {
+            X -= distance;
+          }
+          break;
+        case Day12Directions.North:
+          {
+            Y += distance;
+          }
+          break;
+        case Day12Directions.South:
+          {
+            Y -= distance;
+          }
+          break;
       }
     }
   }
@@ -1140,9 +1123,9 @@ public static partial class Days
   public enum Day12Directions
   {
     North = 0,
-    West  = 90,
+    West = 270,
     South = 180,
-    East  = 270    
+    East = 90
   }
 
   #endregion
