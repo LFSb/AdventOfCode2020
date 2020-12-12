@@ -1076,7 +1076,7 @@ public static partial class Days
 
             case 'W': Move(Day12Directions.West, distance); break;
 
-            case 'L': CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection + -distance + 360)) % 360); break;
+            case 'L': CurrentDirection = (Day12Directions)(((int)CurrentDirection - distance + 360) % 360); break;
 
             case 'R': CurrentDirection = (Day12Directions)(((int)CurrentDirection + distance) % 360); break;
 
