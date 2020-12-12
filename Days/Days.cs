@@ -1041,7 +1041,7 @@ public static partial class Days
       "R90",
       "F11",};
 
-    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
 
     var p1 = new Day12Grid(input).ManhattanDistance;
     var p2 = new Day12Grid(input, false).ManhattanDistance;
@@ -1059,32 +1059,104 @@ public static partial class Days
 
     public int ManhattanDistance => Math.Abs(X) + Math.Abs(Y);
 
-    public Day12Grid(string[] input)
+    public Day12Grid(string[] input, bool p1 = true)
     {
       CurrentDirection = Day12Directions.East; //We start off east.
+
+      var xOffset = 10;
+      var yOffset = 1;
 
       foreach (var line in input)
       {
         var action = line[0];
         var distance = int.Parse(line.Substring(1));
 
-        //Only L and R change the current Direction.
-
-        switch (action)
+        if (p1)
         {
-          case 'N': Move(Day12Directions.North, distance); break;
+          switch (action)
+          {
+            case 'N': Move(Day12Directions.North, distance); break;
 
-          case 'S': Move(Day12Directions.South, distance); break;
+            case 'S': Move(Day12Directions.South, distance); break;
 
-          case 'E': Move(Day12Directions.East, distance); break;
+            case 'E': Move(Day12Directions.East, distance); break;
 
-          case 'W': Move(Day12Directions.West, distance); break;
+            case 'W': Move(Day12Directions.West, distance); break;
 
-          case 'L': CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection + -distance + 360))  % 360); break;
+            case 'L': CurrentDirection = (Day12Directions)(Math.Abs(((int)CurrentDirection + -distance + 360)) % 360); break;
 
-          case 'R': CurrentDirection = (Day12Directions)(((int)CurrentDirection + distance) % 360); break;
+            case 'R': CurrentDirection = (Day12Directions)(((int)CurrentDirection + distance) % 360); break;
 
-          case 'F': Move(CurrentDirection, distance); break;
+            case 'F': Move(CurrentDirection, distance); break;
+          }
+        }
+        else
+        {
+          //Turns out, we're moving a waypoint, not the ship itself.
+
+          //N, S, E, W: Move the waypoint north/south/east/west.
+          //L: rotate the waypoint left (counter-clockwise)
+          //R: rotate the waypoint right (clockwise)
+
+          //F means to move forward to the waypoint X times. The waypoint's position is relative, so when the ship moves, the waypoint moves equally.
+          //The waypoint starts at X: -10 Y: 1
+
+          System.Console.WriteLine(line);
+
+          switch (action)
+          {
+            case 'N': yOffset += distance; break;
+            case 'S': yOffset -= distance; break;
+            case 'E': xOffset += distance; break;
+            case 'W': xOffset -= distance; break;
+            case 'L':
+              {
+                //Rotate the waypoint around counter-clockwise by distance degrees.
+                var rotations = distance / 90; //If the distance is 180, we should rotate twice.
+                
+                while(rotations > 0)
+                {
+                  var mem = yOffset;
+
+                  yOffset = xOffset;
+                  
+                  xOffset = -(mem);
+                  rotations--;
+                }
+                
+                //By rotating counter-clockwise 90 degrees, the positive value on the Y axis becomes a negative value on the X axis.
+                //The negative value on the X axis becomes a negative value on the Y axis. The negative value on the Y axis becomes a positive value on the X axis, and a positive value on the X axis becomes a positive value on the Y axis.
+                
+              }
+              break;
+            case 'R':
+              {
+                var rotations = distance / 90;
+                
+                //By rotating clockwise 90 degrees, the positive value on the Y axis becomes a positive value on the X axis. The positive value on the X axis becomes the negative value on the Y axis.
+                //The negative value on the Y axis becomes a negative value on the X axis, and a negative value on the X axis becomes a positive value on the Y axis.
+
+                while(rotations > 0)
+                {
+                  var mem = xOffset;
+
+                  xOffset = yOffset;
+                  
+                  yOffset = -(mem);
+                  rotations--;
+                }
+              }
+              break;
+            case 'F':
+              {
+                for (var idx = 0; idx < distance; idx++)
+                {
+                  X += xOffset;
+                  Y += yOffset;
+                }
+              }
+              break;
+          }
         }
       }
     }
@@ -1095,12 +1167,12 @@ public static partial class Days
       {
         case Day12Directions.West:
           {
-            X += distance;
+            X -= distance;
           }
           break;
         case Day12Directions.East:
           {
-            X -= distance;
+            X += distance;
           }
           break;
         case Day12Directions.North:
