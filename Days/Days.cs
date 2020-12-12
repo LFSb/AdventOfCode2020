@@ -1041,15 +1041,12 @@ public static partial class Days
       "R90",
       "F11",};
 
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
+    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day12.txt"));
 
-    var grid = new Day12Grid(input);
+    var p1 = new Day12Grid(input).ManhattanDistance;
+    var p2 = new Day12Grid(input, false).ManhattanDistance;
 
-    System.Console.WriteLine($"X:{grid.X} Y:{grid.Y}");
-
-    var p1 = grid.ManhattanDistance;
-
-    return OutputResult(p1.ToString());
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
   public class Day12Grid
