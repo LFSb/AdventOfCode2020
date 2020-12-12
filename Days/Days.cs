@@ -1029,4 +1029,102 @@ public static partial class Days
     }
   }
   #endregion
+
+  #region Day12: todo
+  public static string Day12()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day13: todo
+  public static string Day13()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day14: todo
+  public static string Day14()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day15: todo
+  public static string Day15()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day16: todo
+  public static string Day16()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day17: todo
+  public static string Day17()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day18: todo
+  public static string Day18()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day19: todo
+  public static string Day19()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day20: todo
+  public static string Day20()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day21: todo
+  public static string Day21()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day22: todo
+  public static string Day22()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day23: todo
+  public static string Day23()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day24: todo
+  public static string Day24()
+  {
+    return OutputResult();
+  }
+  #endregion
+
+  #region Day25: todo
+  public static string Day25()
+  {
+    return OutputResult();
+  }
+  #endregion
 }
