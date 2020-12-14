@@ -1194,40 +1194,40 @@ public static partial class Days
       "7,13,x,x,59,x,31,19"
     };
 
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day13.txt"));
+    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day13.txt"));
 
     var day = new Day13Schedule(input);
 
-    return OutputResult(day.P1().ToString());
+    return OutputResult(day.P1().ToString(), day.P2().ToString());
   }
 
   public class Day13Schedule
   {
-    public int[] Busses { get; set; }
+    public long[] Busses { get; set; }
 
-    public int EarliestDeparture {get;set;}
+    public long EarliestDeparture { get; set; }
 
-    public Day13Schedule(string [] input)
+    public Day13Schedule(string[] input)
     {
-      EarliestDeparture = int.Parse(input[0]);
-      Busses = input[1].Split(',').Where(x => int.TryParse(x, out var _)).Select(x => int.Parse(x)).ToArray();
+      EarliestDeparture = long.Parse(input[0]);
+      Busses = input[1].Replace('x', '0').Split(',').Select(x => long.Parse(x)).ToArray();
     }
 
-    public int P1()
+    public long P1()
     {
-      var busId = 0;
-      var busDeparture = int.MaxValue;
+      long busId = 0;
+      var busDeparture = long.MaxValue;
 
-      foreach(var bus in Busses)
+      foreach (var bus in Busses.Where(x => x != 0))
       {
-        var current = 0;
+        long current = 0;
 
-        while(current < EarliestDeparture)
+        while (current < EarliestDeparture)
         {
           current += bus;
         }
 
-        if(current < busDeparture)
+        if (current < busDeparture)
         {
           busId = bus;
           busDeparture = current;
@@ -1235,6 +1235,49 @@ public static partial class Days
       }
 
       return busId * (busDeparture - EarliestDeparture);
+    }
+
+    public long P2()
+    {
+      //We're looking for the first minute where each of the busses leaves at an offset of that minute that is equal to its position in the array. So the bus at index 0 leaves at minute + 0, the bus at index 1 leaves minute + 1.
+      //Busses that have the busid 0 need to be skipped. 
+
+      long minute = 0;
+      
+      //The below works, but is horribly inefficient.
+      //How can we improve?
+
+      var localBusses = Busses.Select(x => x).ToArray();
+      
+      while (true)
+      {
+        minute++;
+
+        if (minute == 1068781 || minute > 1202161484)
+        {
+          System.Console.WriteLine("hiero");
+        }
+
+        var duplicates = localBusses.Count(x => x > 0) != localBusses.Where(x => x > 0).Distinct().Count();
+
+        if (!duplicates)
+        {
+          if (localBusses.Where(x => x != 0).All(localBus => (localBus - minute) == Array.LastIndexOf(localBusses, localBus)))
+          {
+            return minute;
+          }
+        }
+
+        for (var bus = 0; bus < localBusses.Length; bus++)
+        {
+          if (Busses[bus] != 0)
+          {
+            localBusses[bus] += minute % Busses[bus] == 0 ? Busses[bus] : 0;
+          }
+        }
+      }
+
+      return -1;
     }
   }
 
