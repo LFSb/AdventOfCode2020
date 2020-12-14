@@ -1030,7 +1030,7 @@ public static partial class Days
   }
   #endregion
 
-  #region Day12: todo
+  #region Day12: Solved!
 
   public static string Day12()
   {
@@ -1093,7 +1093,7 @@ public static partial class Days
           //R: rotate the waypoint right (clockwise)
 
           //F means to move forward to the waypoint X times. The waypoint's position is relative, so when the ship moves, the waypoint moves equally.
-          
+
           switch (action)
           {
             case 'N': yOffset += distance; break;
@@ -1185,10 +1185,59 @@ public static partial class Days
   #endregion
 
   #region Day13: todo
+
   public static string Day13()
   {
-    return OutputResult();
+    var input = new[]
+    {
+      "939",
+      "7,13,x,x,59,x,31,19"
+    };
+
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day13.txt"));
+
+    var day = new Day13Schedule(input);
+
+    return OutputResult(day.P1().ToString());
   }
+
+  public class Day13Schedule
+  {
+    public int[] Busses { get; set; }
+
+    public int EarliestDeparture {get;set;}
+
+    public Day13Schedule(string [] input)
+    {
+      EarliestDeparture = int.Parse(input[0]);
+      Busses = input[1].Split(',').Where(x => int.TryParse(x, out var _)).Select(x => int.Parse(x)).ToArray();
+    }
+
+    public int P1()
+    {
+      var busId = 0;
+      var busDeparture = int.MaxValue;
+
+      foreach(var bus in Busses)
+      {
+        var current = 0;
+
+        while(current < EarliestDeparture)
+        {
+          current += bus;
+        }
+
+        if(current < busDeparture)
+        {
+          busId = bus;
+          busDeparture = current;
+        }
+      }
+
+      return busId * (busDeparture - EarliestDeparture);
+    }
+  }
+
   #endregion
 
   #region Day14: todo
