@@ -1191,7 +1191,7 @@ public static partial class Days
     var input = new[]
     {
       "939",
-      "7,13,x,x,59,x,31,19"
+      "1789,37,47,1889"
     };
 
     //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day13.txt"));
@@ -1244,40 +1244,27 @@ public static partial class Days
 
       long minute = 0;
       
-      //The below works, but is horribly inefficient.
-      //How can we improve?
+      var max = Busses.Max();
 
-      var localBusses = Busses.Select(x => x).ToArray();
-      
-      while (true)
+      var indexOfMax = Array.IndexOf(Busses, max);
+
+      //Instead of counting up, it's probably faster to count down (as the expected answer is going to be very large.)
+      //Also, instead of counting the minutes one by one, we can count of intervals of the largest busid, and simply adjust the startingminute through its index in the list.
+
+      //There must also be some other way to make this one faster, but how?
+      while (minute < long.MaxValue)
       {
-        minute++;
+        minute += max;
 
-        if (minute == 1068781 || minute > 1202161484)
+        var startingMinute = minute - indexOfMax;
+
+        if(Busses.Where(x => x != 0).All(x => (startingMinute + Array.IndexOf(Busses, x)) % x == 0))
         {
-          System.Console.WriteLine("hiero");
-        }
-
-        var duplicates = localBusses.Count(x => x > 0) != localBusses.Where(x => x > 0).Distinct().Count();
-
-        if (!duplicates)
-        {
-          if (localBusses.Where(x => x != 0).All(localBus => (localBus - minute) == Array.LastIndexOf(localBusses, localBus)))
-          {
-            return minute;
-          }
-        }
-
-        for (var bus = 0; bus < localBusses.Length; bus++)
-        {
-          if (Busses[bus] != 0)
-          {
-            localBusses[bus] += minute % Busses[bus] == 0 ? Busses[bus] : 0;
-          }
+          return startingMinute;
         }
       }
 
-      return -1;
+      return minute;
     }
   }
 
@@ -1286,6 +1273,16 @@ public static partial class Days
   #region Day14: todo
   public static string Day14()
   {
+    // var input = new []
+    // {
+    //   "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
+    //   "mem[8] = 11",
+    //   "mem[7] = 101",
+    //   "mem[8] = 0"
+    // };
+
+    // var bitArray = new BitArray(new byte[]{})
+    
     return OutputResult();
   }
   #endregion
