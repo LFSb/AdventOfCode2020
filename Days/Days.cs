@@ -1186,7 +1186,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day13: todo
+  #region Day13: sorta solved
 
   public static string Day13()
   {
@@ -1292,17 +1292,84 @@ public static partial class Days
   #region Day14: todo
   public static string Day14()
   {
-    // var input = new []
-    // {
-    //   "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
-    //   "mem[8] = 11",
-    //   "mem[7] = 101",
-    //   "mem[8] = 0"
-    // };
+    var input = new []
+    {
+      "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
+      "mem[8] = 11",
+      "mem[7] = 101",
+      "mem[8] = 0"
+    };
 
-    // var bitArray = new BitArray(new byte[]{})
+    var mem = new uint[36];
+    var mask = new bool?[36];
+
+    foreach(var line in input)
+    {
+      if(line.StartsWith("mask"))
+      {
+        mask = ParseMask(line.Replace("mask = ", string.Empty).ToCharArray());
+      }
+      else
+      {
+        var bracketIndex = line.IndexOf('[') + 1;
+        var position = decimal.Parse(line.Substring(bracketIndex, line.IndexOf(']') - bracketIndex));
+
+        var value = decimal.Parse(line.Substring(line.LastIndexOf(' ') + 1));
+
+        Console.WriteLine($"Write value {value} to position {position}");
+
+        var bitArray = new BitArray(Decimal.GetBits(value));
+        Console.WriteLine($"Input : {VisualizeBitArray(bitArray)}");
+
+        var output = ApplyMask(bitArray, mask);
+
+        Console.WriteLine($"Output: {VisualizeBitArray(output)}");
+      }
+    }
 
     return OutputResult();
+  }
+
+  private static bool[] ApplyMask(BitArray input, bool?[] mask)
+  {
+    var output = new bool[mask.Length];
+
+    for(var i = 0; i < mask.Length; i++)
+    {
+      output[i] = mask[i].HasValue ? mask[i].Value : input[i];
+    }
+    
+    return output;
+  }
+
+  private static bool?[] ParseMask(char[] maskRep)
+  {
+    maskRep = maskRep.Reverse().ToArray();
+
+    var output  = new bool?[36];
+    
+    for(var i = 0; i < 36; i++)
+    {
+      var maskValue = (maskRep[i] == 'X' ? (bool?)null : maskRep[i] == '1');
+    }
+
+    return output;
+  }
+
+  private static string VisualizeBitArray(BitArray input)
+  {
+    var visual = "";
+    
+    for(var i = 35; i >= 0; i--) //We're only interested in the 36
+    {
+      visual += input[i] ? 1 : 0;
+    }
+    return visual;
+  }
+
+  private static string VisualizeBitArray(bool[] input)
+  {
+    return VisualizeBitArray(new BitArray(input));
   }
   #endregion
 
