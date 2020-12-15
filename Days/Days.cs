@@ -1302,7 +1302,7 @@ public static partial class Days
     
     input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
-    var mem = new long[36];
+    var mem = new long[65488];
     var mask = new bool?[36];
 
     foreach(var line in input)
@@ -1321,6 +1321,7 @@ public static partial class Days
         // Console.WriteLine($"Write value {value} to position {position}");
 
         var bitArray = new BitArray(Decimal.GetBits(value));
+        
         // Console.WriteLine($"Input : {VisualizeBitArray(bitArray)}");
 
         var output = ApplyMask(bitArray, mask);
