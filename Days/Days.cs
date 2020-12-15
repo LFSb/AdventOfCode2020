@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1194,7 +1196,7 @@ public static partial class Days
       "1789,37,47,1889"
     };
 
-    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day13.txt"));
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day13.txt"));
 
     var day = new Day13Schedule(input);
 
@@ -1243,29 +1245,46 @@ public static partial class Days
       //Busses that have the busid 0 need to be skipped. 
 
       long minute = 0;
-      
-      var max = Busses.Max();
 
-      var indexOfMax = Array.IndexOf(Busses, max);
+      var interval = Busses.Max();
 
-      //Instead of counting up, it's probably faster to count down (as the expected answer is going to be very large.)
-      //Also, instead of counting the minutes one by one, we can count of intervals of the largest busid, and simply adjust the startingminute through its index in the list.
-
-      //There must also be some other way to make this one faster, but how?
-      while (minute < long.MaxValue)
+      var indexOfInterval = Array.IndexOf(Busses, interval);
+      var partitions = 4;
+      var partition = long.MaxValue / partitions;
+      var options = new ParallelOptions
       {
-        minute += max;
+        MaxDegreeOfParallelism = partitions
+      };
 
-        var startingMinute = minute - indexOfMax;
-
-        if(Busses.Where(x => x != 0).All(x => (startingMinute + Array.IndexOf(Busses, x)) % x == 0))
-        {
-          return startingMinute;
-        }
-      }
+      Parallel.For(0, partitions, (int i, ParallelLoopState state) =>
+      {
+        var start = i * partition;
+        var result = BruteForceP2(Busses, start, start + partition, interval, indexOfInterval);
+        System.Console.WriteLine($"{i}: {result}");
+        minute = Math.Max(result, minute);
+        state.Stop();
+      });
 
       return minute;
     }
+  }
+
+  private static long BruteForceP2(long[] buses, long minute, long limit, long interval, long indexOfInterval)
+  {
+    //There must also be some other way to make this one faster, but how?
+    while (minute < limit)
+    {
+      minute += interval;
+
+      var startingMinute = minute - indexOfInterval;
+
+      if (buses.Where(x => x != 0).All(x => (startingMinute + Array.IndexOf(buses, x)) % x == 0))
+      {
+        return startingMinute;
+      }
+    }
+
+    return -1;
   }
 
   #endregion
@@ -1282,7 +1301,7 @@ public static partial class Days
     // };
 
     // var bitArray = new BitArray(new byte[]{})
-    
+
     return OutputResult();
   }
   #endregion
