@@ -1299,8 +1299,10 @@ public static partial class Days
       "mem[7] = 101",
       "mem[8] = 0"
     };
+    
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
-    var mem = new uint[36];
+    var mem = new long[36];
     var mask = new bool?[36];
 
     foreach(var line in input)
@@ -1316,18 +1318,26 @@ public static partial class Days
 
         var value = decimal.Parse(line.Substring(line.LastIndexOf(' ') + 1));
 
-        Console.WriteLine($"Write value {value} to position {position}");
+        // Console.WriteLine($"Write value {value} to position {position}");
 
         var bitArray = new BitArray(Decimal.GetBits(value));
-        Console.WriteLine($"Input : {VisualizeBitArray(bitArray)}");
+        // Console.WriteLine($"Input : {VisualizeBitArray(bitArray)}");
 
         var output = ApplyMask(bitArray, mask);
+        
+        var stringOutput = VisualizeBitArray(output);
+        var maskedVal = Convert.ToInt64(stringOutput, 2);
 
-        Console.WriteLine($"Output: {VisualizeBitArray(output)}");
+        // Console.WriteLine($"Output: {stringOutput}");
+        // System.Console.WriteLine($"Numeric output: {maskedVal}");
+
+        mem[(int)position] = maskedVal;
       }
     }
 
-    return OutputResult();
+    var p1 = mem.Sum();
+
+    return OutputResult(p1.ToString());
   }
 
   private static bool[] ApplyMask(BitArray input, bool?[] mask)
@@ -1350,7 +1360,7 @@ public static partial class Days
     
     for(var i = 0; i < 36; i++)
     {
-      var maskValue = (maskRep[i] == 'X' ? (bool?)null : maskRep[i] == '1');
+      output[i] = (maskRep[i] == 'X' ? (bool?)null : maskRep[i] == '1');
     }
 
     return output;
