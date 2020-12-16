@@ -1292,14 +1292,14 @@ public static partial class Days
   #region Day14: P1
   public static string Day14()
   {
-    var input = new []
+    var input = new[]
     {
       "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
       "mem[8] = 11",
       "mem[7] = 101",
       "mem[8] = 0"
     };
-    
+
     input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
     var p1 = Day14Calculate(input);
@@ -1311,12 +1311,12 @@ public static partial class Days
 
   private static long Day14Calculate(string[] input, bool part2 = false)
   {
-    var mem = new long[65488]; //Just use the largest memory address from the input + 1
+    var mem = new long[65488]; //Just use the largest memory address from the input + 1 (note, this will probably not be sufficient for part 2... we'll cross that bridge when we get to it.)
     var mask = new bool?[36];
 
-    foreach(var line in input)
+    foreach (var line in input)
     {
-      if(line.StartsWith("mask"))
+      if (line.StartsWith("mask"))
       {
         mask = ParseMask(line.Replace("mask = ", string.Empty).ToCharArray());
       }
@@ -1324,32 +1324,81 @@ public static partial class Days
       {
         var bracketIndex = line.IndexOf('[') + 1;
         var position = decimal.Parse(line.Substring(bracketIndex, line.IndexOf(']') - bracketIndex));
-
         var value = decimal.Parse(line.Substring(line.LastIndexOf(' ') + 1));
 
-        var bitArray = new BitArray(Decimal.GetBits(value));
+        if (part2)
+        {
+          var bitArray = new BitArray(Decimal.GetBits(position)); //In part 2, we're decoding the memory address(es) to write to, not the actual value.
 
-        var output = ApplyMask(bitArray, mask);
-        
-        var stringOutput = VisualizeBitArray(output);
-        var maskedVal = Convert.ToInt64(stringOutput, 2);       
+          var output = Decode(bitArray, mask); //The output will contain NULL values. These are the "floating" bits. We must iterate through all possible combinations for these floating bits and write the value to all corresponding memory addressses.
 
-        mem[(int)position] = maskedVal;
+          var addresses = DetermineAddresses(output);
+
+          foreach (var memAdr in addresses)
+          {
+            mem[memAdr] = (long)value;
+          }
+        }
+        else
+        {
+          var bitArray = new BitArray(Decimal.GetBits(value));
+
+          var output = ApplyMask(bitArray, mask);
+
+          var stringOutput = VisualizeBitArray(output);
+          var maskedVal = Convert.ToInt64(stringOutput, 2);
+
+          mem[(int)position] = maskedVal;
+        }
       }
     }
 
     return mem.Sum();
   }
 
+  private static int[] DetermineAddresses(bool?[] input)
+  {
+    var combinations = (int)Math.Pow(2, input.Count(x => x == null));
+
+    var outcomes = new string[combinations];
+
+    while (combinations > 0)
+    {
+      string value = string.Empty;
+
+      //TODO: Find out a way to efficiently iterate through the different posibilities given the amount of NULL values.
+
+      combinations--;
+    }
+
+    return outcomes.Select(outcome => (int)Convert.ToInt64(outcome, 2)).ToArray();
+  }
+
+  private static bool?[] Decode(BitArray input, bool?[] mask)
+  {
+    var output = new bool?[mask.Length];
+
+    for (var i = 0; i < mask.Length; i++)
+    {
+      output[i] = mask[i].HasValue
+        ? mask[i].Value
+          ? true
+          : output[i]
+        : null; //This is where we have to do some wild shit.
+    }
+
+    return output;
+  }
+
   private static bool[] ApplyMask(BitArray input, bool?[] mask)
   {
     var output = new bool[mask.Length];
 
-    for(var i = 0; i < mask.Length; i++)
+    for (var i = 0; i < mask.Length; i++)
     {
       output[i] = mask[i].HasValue ? mask[i].Value : input[i];
     }
-    
+
     return output;
   }
 
@@ -1357,9 +1406,9 @@ public static partial class Days
   {
     maskRep = maskRep.Reverse().ToArray();
 
-    var output  = new bool?[36];
-    
-    for(var i = 0; i < 36; i++)
+    var output = new bool?[36];
+
+    for (var i = 0; i < 36; i++)
     {
       output[i] = (maskRep[i] == 'X' ? (bool?)null : maskRep[i] == '1');
     }
@@ -1370,8 +1419,8 @@ public static partial class Days
   private static string VisualizeBitArray(BitArray input)
   {
     var visual = "";
-    
-    for(var i = 35; i >= 0; i--) //We're only interested in the 36
+
+    for (var i = 35; i >= 0; i--) //We're only interested in the 36
     {
       visual += input[i] ? 1 : 0;
     }
@@ -1387,7 +1436,31 @@ public static partial class Days
   #region Day15: todo
   public static string Day15()
   {
-    return OutputResult();
+    var input = new int[] { 7,12,1,0,16,2 };
+    var turns = new int?[2020];
+
+    for(var i = 0; i < input.Length; i++) //First, seed the array with the values we know to be true.
+    {
+      turns[i] = input[i];
+    }
+
+    for(var i = input.Length; i < 2020; i++)
+    {
+      var previousNumber = turns[i - 1];
+
+      if(turns.Count(x => x == previousNumber) == 1)
+      {
+        turns[i] = 0;
+      }
+      else
+      {
+        var lastIndex = Array.LastIndexOf(turns, previousNumber);
+
+        turns[i] = lastIndex - Array.LastIndexOf(turns.Take(lastIndex).ToArray(), previousNumber);
+      }
+    }
+
+    return OutputResult(turns[2019].Value.ToString());
   }
   #endregion
 
