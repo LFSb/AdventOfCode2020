@@ -1302,7 +1302,16 @@ public static partial class Days
     
     input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
-    var mem = new long[65488];
+    var p1 = Day14Calculate(input);
+
+    var p2 = Day14Calculate(input, true);
+
+    return OutputResult(p1.ToString(), p2.ToString());
+  }
+
+  private static long Day14Calculate(string[] input, bool part2 = false)
+  {
+    var mem = new long[65488]; //Just use the largest memory address from the input + 1
     var mask = new bool?[36];
 
     foreach(var line in input)
@@ -1318,27 +1327,18 @@ public static partial class Days
 
         var value = decimal.Parse(line.Substring(line.LastIndexOf(' ') + 1));
 
-        // Console.WriteLine($"Write value {value} to position {position}");
-
         var bitArray = new BitArray(Decimal.GetBits(value));
-        
-        // Console.WriteLine($"Input : {VisualizeBitArray(bitArray)}");
 
         var output = ApplyMask(bitArray, mask);
         
         var stringOutput = VisualizeBitArray(output);
-        var maskedVal = Convert.ToInt64(stringOutput, 2);
-
-        // Console.WriteLine($"Output: {stringOutput}");
-        // System.Console.WriteLine($"Numeric output: {maskedVal}");
+        var maskedVal = Convert.ToInt64(stringOutput, 2);       
 
         mem[(int)position] = maskedVal;
       }
     }
 
-    var p1 = mem.Sum();
-
-    return OutputResult(p1.ToString());
+    return mem.Sum();
   }
 
   private static bool[] ApplyMask(BitArray input, bool?[] mask)
