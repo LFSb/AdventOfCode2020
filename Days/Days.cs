@@ -1186,7 +1186,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day13: sorta solved
+  #region Day13: Solved!
 
   public static string Day13()
   {
@@ -1289,7 +1289,7 @@ public static partial class Days
 
   #endregion
 
-  #region Day14: todo
+  #region Day14: P1
   public static string Day14()
   {
     var input = new []
