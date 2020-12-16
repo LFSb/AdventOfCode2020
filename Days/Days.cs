@@ -1436,19 +1436,29 @@ public static partial class Days
   #region Day15: todo
   public static string Day15()
   {
-    var input = new int[] { 7,12,1,0,16,2 };
-    var turns = new int?[2020];
+    var input = new int[] { 7, 12, 1, 0, 16, 2 };
 
-    for(var i = 0; i < input.Length; i++) //First, seed the array with the values we know to be true.
+    var p1 = CalculateDay15(input);
+
+    return OutputResult(p1.ToString());
+  }
+
+  private static int CalculateDay15(int[] input, bool p2 = false)
+  {
+    var length = p2 ? 30000000 : 2020;
+
+    var turns = new int?[length];
+
+    for (var i = 0; i < input.Length; i++) //First, seed the array with the values we know to be true.
     {
       turns[i] = input[i];
     }
 
-    for(var i = input.Length; i < 2020; i++)
+    for (var i = input.Length; i < length; i++)
     {
       var previousNumber = turns[i - 1];
 
-      if(turns.Count(x => x == previousNumber) == 1)
+      if (turns.Count(x => x == previousNumber) == 1)
       {
         turns[i] = 0;
       }
@@ -1460,7 +1470,7 @@ public static partial class Days
       }
     }
 
-    return OutputResult(turns[2019].Value.ToString());
+    return turns.Last().Value;
   }
   #endregion
 
