@@ -1300,7 +1300,7 @@ public static partial class Days
       "mem[26] = 1"
     };
 
-    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
     var p1 = Day14Calculate(input);
 
@@ -1311,9 +1311,8 @@ public static partial class Days
 
   private static long Day14Calculate(string[] input, bool part2 = false)
   {
-    var mem = new long[65488]; //Just use the largest memory address from the input + 1 (note, this will probably not be sufficient for part 2... we'll cross that bridge when we get to it.)
+    var mem = new Dictionary<decimal, decimal>();
     var mask = new bool?[36];
-    var mem2 = new Dictionary<uint, decimal>();
 
     foreach (var line in input)
     {
@@ -1337,13 +1336,13 @@ public static partial class Days
 
           foreach (var memAdr in addresses)
           {
-            if(mem2.ContainsKey(memAdr))
+            if(mem.ContainsKey(memAdr))
             {
-              mem2[memAdr] = value;
+              mem[memAdr] = value;
             }
             else
             {
-              mem2.Add(memAdr, value);
+              mem.Add(memAdr, value);
             }
           }
         }
@@ -1356,17 +1355,23 @@ public static partial class Days
           var stringOutput = VisualizeBitArray(output);
           var maskedVal = Convert.ToInt64(stringOutput, 2);
 
-          mem[(int)position] = maskedVal;
+
+          if(mem.ContainsKey(position))
+          {
+            mem[position] = maskedVal;
+          }
+          else
+          {
+            mem.Add(position, maskedVal);
+          }
         }
       }
     }
 
-    return part2 
-      ? (long)mem2.Sum(x => x.Value) 
-      : mem.Sum();
+    return (long)mem.Sum(x => x.Value);
   }
 
-  private static uint[] DetermineAddresses(bool?[] input)
+  private static decimal[] DetermineAddresses(bool?[] input)
   {
     var floatingAmount = input.Count(x => x == null);
     var combinations = (int)Math.Pow(2, floatingAmount);
@@ -1392,7 +1397,7 @@ public static partial class Days
       outcomes[combination] = VisualizeBitArray(local);
     }
 
-    return outcomes.Select(outcome => (uint)Convert.ToInt64(outcome, 2)).ToArray();
+    return outcomes.Select(outcome => (decimal)Convert.ToInt64(outcome, 2)).ToArray();
   }
 
   private static List<string> GenerateUniqueCombinations(int length, bool[] combinations, int index)
