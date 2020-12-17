@@ -1360,18 +1360,47 @@ public static partial class Days
   {
     var combinations = (int)Math.Pow(2, input.Count(x => x == null));
 
+    var uniqueCombinations = GenerateUniqueCombinations(combinations, new bool[combinations], 0);
+
     var outcomes = new string[combinations];
+    var combinationLength = uniqueCombinations.First().Length;
 
-    while (combinations > 0)
+    for(var combination = 0; combination < combinations; combination++)
     {
-      string value = string.Empty;
+      var queue = new Queue<char>(uniqueCombinations[combination]);
 
-      //TODO: Find out a way to efficiently iterate through the different posibilities given the amount of NULL values.
+      var local = new bool[input.Length];
 
-      combinations--;
+      for(var idx = 0; idx < input.Length; idx++)
+      {
+        local[idx] = input[idx] == null 
+          ? queue.Dequeue() == '1' 
+          : input[idx].Value;
+      }
+
+      outcomes[combination] = VisualizeBitArray(local);
     }
 
     return outcomes.Select(outcome => (int)Convert.ToInt64(outcome, 2)).ToArray();
+  }
+
+  private static List<string> GenerateUniqueCombinations(int length, bool[] combinations, int index)
+  {
+    var returnList = new List<string>();
+
+    if(index == length)
+    {
+      returnList.Add(string.Join("", combinations.Select(x => x ? '1' : '0')));
+      return returnList;
+    }
+    
+    for(var i = 0; i < 2; i++)
+    {
+      combinations[index] = !combinations[index];
+      returnList.AddRange(GenerateUniqueCombinations(length, combinations, index + 1));
+    }
+
+    return returnList;
   }
 
   private static bool?[] Decode(BitArray input, bool?[] mask)
@@ -1440,7 +1469,9 @@ public static partial class Days
 
     var p1 = CalculateDay15(input);
 
-    return OutputResult(p1.ToString());
+    var p2 = CalculateDay15(input, true);
+
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
   private static int CalculateDay15(int[] input, bool p2 = false)
