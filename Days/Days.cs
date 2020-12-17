@@ -1515,27 +1515,12 @@ public static partial class Days
   #region Day16: todo
   public static string Day16()
   {
-    var input = new []
-    {
-      "class: 1-3 or 5-7",
-      "row: 6-11 or 33-44",
-      "seat: 13-40 or 45-50",
-      "",
-      "your ticket:",
-      "7,1,14",
-      "",
-      "nearby tickets:",
-      "7,3,47",
-      "40,4,50",
-      "55,2,20",
-      "38,6,12",
-    };
-
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day16.txt"));
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day16.txt"));
     
-    var ranges = new List<Tuple<int, int>>();
+    var ranges = new List<Day16Range>();
     var tickets = new List<List<int>>();
-    
+    List<int> myTicket = null;
+
     for(var line = 0; line < input.Length; line++)
     {
       var current = input[line];
@@ -1547,41 +1532,131 @@ public static partial class Days
         foreach(var unParsedRange in unparsedRanges)
         {
           var split = unParsedRange.Split('-');
-          ranges.Add(new Tuple<int, int>(int.Parse(split[0]), int.Parse(split[1])));
+          ranges.Add(new Day16Range(current.Substring(0, current.IndexOf(':')), int.Parse(split[0]), int.Parse(split[1])));
         }
       }
 
       if(current.Contains(','))
       {
         var split = current.Split(',');
-        tickets.Add(split.Select(int.Parse).ToList());
+        if(myTicket == null)
+        {
+          myTicket = split.Select(int.Parse).ToList();
+        }
+        else
+        {
+          tickets.Add(split.Select(int.Parse).ToList());
+        }
       }
     }
 
     var errorRate = 0;
+    var validTickets = new List<List<int>>();
 
     foreach(var ticket in tickets)
-    {     
+    {   
+      var valid = true;
+
       foreach(var prop in ticket)
       {
-        errorRate += IsValidNumberDay16(ranges, prop);
+        valid &= IsValidNumberDay16(ranges, prop, out var error);
+        errorRate += error;
+      }
+
+      if(valid)
+      {
+        validTickets.Add(ticket);
+      }
+    }
+    
+    var p1 = errorRate;
+    
+    var taken = new List<string>();
+    long p2 = 1;
+
+    while(taken.Count() < ranges.Select(x => x.Name).Distinct().Count())
+    {
+      for(var idx = 0; idx < validTickets.First().Count(); idx++)
+      {
+        var values = validTickets.Select(val => val[idx]).ToArray();
+
+        var foundRanges = FindRangesForInput(ranges.Where(x => !taken.Contains(x.Name)), values); //There's going to be indices that have more than one candidate. Skip these for now, the field will narrow down eventually.
+
+        if(foundRanges.Count() == 1) //If we find exactly one, we found our main candidate.
+        {
+          var range = foundRanges.First();
+
+          taken.Add(range);
+
+          if(range.StartsWith("departure"))
+          {
+            p2 *= myTicket[idx];
+          }
+        }
       }
     }
 
-    var p1 = errorRate;
-
-    return OutputResult(p1.ToString());
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
-  private static int IsValidNumberDay16(List<Tuple<int, int>> ranges, int number)
+  private class Day16Range
   {
-    if(ranges.Max(x => x.Item2) < number || ranges.Min(x => x.Item1) > number) //If the number falls completely outside of any ranges, it's not a valid number.
+    public string Name { get; private set; }
+
+    public int Min { get; private set; }
+
+    public int Max { get; private set; }
+
+    public Day16Range(string name, int min, int max)
     {
-      return number;
+      Name = name;
+      Min = min;
+      Max = max;
+    }
+  }
+
+  private static IEnumerable<string> FindRangesForInput(IEnumerable<Day16Range> ranges, IEnumerable<int> values)
+  {
+    var dict = new Dictionary<string, int>();
+
+    foreach(var val in values)
+    {
+      var validRanges = ranges.Where(x => x.Min <= val && x.Max >= val);
+
+      foreach(var validRange in validRanges)
+      {
+        if(!dict.ContainsKey(validRange.Name))
+        {
+          dict.Add(validRange.Name, 0);
+        }
+
+        dict[validRange.Name]++;
+      }
+    }
+
+    return dict.Where(x => x.Value == values.Count()).Select(x => x.Key);
+  }
+
+  private static bool IsValidNumberDay16(List<Day16Range> ranges, int number, out int numberToAdd)
+  {
+    numberToAdd = 0;
+
+    if(ranges.Max(x => x.Max) < number || ranges.Min(x => x.Min) > number) //If the number falls completely outside of any ranges, it's not a valid number.
+    {
+      numberToAdd = number;
+      return false;
     }
     else
     {
-      return ranges.Any(x => x.Item1 <= number && x.Item2 >= number) ? 0 : number;
+      if(ranges.Any(x => x.Min <= number && x.Max >= number))
+      {
+        return true;
+      } 
+      else
+      {
+        numberToAdd = number;
+        return false;
+      }
     }
   }
 
