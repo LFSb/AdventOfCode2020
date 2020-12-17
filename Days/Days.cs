@@ -1294,13 +1294,13 @@ public static partial class Days
   {
     var input = new[]
     {
-      "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
-      "mem[8] = 11",
-      "mem[7] = 101",
-      "mem[8] = 0"
+      "mask = 000000000000000000000000000000X1001X",
+      "mem[42] = 100",
+      "mask = 00000000000000000000000000000000X0XX",
+      "mem[26] = 1"
     };
 
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
+    //input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
     var p1 = Day14Calculate(input);
 
@@ -1313,6 +1313,7 @@ public static partial class Days
   {
     var mem = new long[65488]; //Just use the largest memory address from the input + 1 (note, this will probably not be sufficient for part 2... we'll cross that bridge when we get to it.)
     var mask = new bool?[36];
+    var mem2 = new Dictionary<uint, decimal>();
 
     foreach (var line in input)
     {
@@ -1336,7 +1337,14 @@ public static partial class Days
 
           foreach (var memAdr in addresses)
           {
-            mem[memAdr] = (long)value;
+            if(mem2.ContainsKey(memAdr))
+            {
+              mem2[memAdr] = value;
+            }
+            else
+            {
+              mem2.Add(memAdr, value);
+            }
           }
         }
         else
@@ -1353,14 +1361,17 @@ public static partial class Days
       }
     }
 
-    return mem.Sum();
+    return part2 
+      ? (long)mem2.Sum(x => x.Value) 
+      : mem.Sum();
   }
 
-  private static int[] DetermineAddresses(bool?[] input)
+  private static uint[] DetermineAddresses(bool?[] input)
   {
-    var combinations = (int)Math.Pow(2, input.Count(x => x == null));
+    var floatingAmount = input.Count(x => x == null);
+    var combinations = (int)Math.Pow(2, floatingAmount);
 
-    var uniqueCombinations = GenerateUniqueCombinations(combinations, new bool[combinations], 0);
+    var uniqueCombinations = GenerateUniqueCombinations(floatingAmount, new bool[floatingAmount], 0);
 
     var outcomes = new string[combinations];
     var combinationLength = uniqueCombinations.First().Length;
@@ -1381,7 +1392,7 @@ public static partial class Days
       outcomes[combination] = VisualizeBitArray(local);
     }
 
-    return outcomes.Select(outcome => (int)Convert.ToInt64(outcome, 2)).ToArray();
+    return outcomes.Select(outcome => (uint)Convert.ToInt64(outcome, 2)).ToArray();
   }
 
   private static List<string> GenerateUniqueCombinations(int length, bool[] combinations, int index)
@@ -1412,7 +1423,7 @@ public static partial class Days
       output[i] = mask[i].HasValue
         ? mask[i].Value
           ? true
-          : output[i]
+          : (bool?)input[i]
         : null; //This is where we have to do some wild shit.
     }
 
