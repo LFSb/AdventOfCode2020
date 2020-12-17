@@ -1289,18 +1289,10 @@ public static partial class Days
 
   #endregion
 
-  #region Day14: P1
+  #region Day14: Done!
   public static string Day14()
   {
-    var input = new[]
-    {
-      "mask = 000000000000000000000000000000X1001X",
-      "mem[42] = 100",
-      "mask = 00000000000000000000000000000000X0XX",
-      "mem[26] = 1"
-    };
-
-    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day14.txt"));
 
     var p1 = Day14Calculate(input);
 
@@ -1355,7 +1347,6 @@ public static partial class Days
           var stringOutput = VisualizeBitArray(output);
           var maskedVal = Convert.ToInt64(stringOutput, 2);
 
-
           if(mem.ContainsKey(position))
           {
             mem[position] = maskedVal;
@@ -1373,10 +1364,10 @@ public static partial class Days
 
   private static decimal[] DetermineAddresses(bool?[] input)
   {
-    var floatingAmount = input.Count(x => x == null);
+    var floatingAmount = input.Count(i => i == null);
     var combinations = (int)Math.Pow(2, floatingAmount);
 
-    var uniqueCombinations = GenerateUniqueCombinations(floatingAmount, new bool[floatingAmount], 0);
+    var uniqueCombinations = GenerateUniqueBinaryCombinations(floatingAmount, new bool[floatingAmount], 0);
 
     var outcomes = new string[combinations];
     var combinationLength = uniqueCombinations.First().Length;
@@ -1400,7 +1391,7 @@ public static partial class Days
     return outcomes.Select(outcome => (decimal)Convert.ToInt64(outcome, 2)).ToArray();
   }
 
-  private static List<string> GenerateUniqueCombinations(int length, bool[] combinations, int index)
+  private static List<string> GenerateUniqueBinaryCombinations(int length, bool[] combinations, int index)
   {
     var returnList = new List<string>();
 
@@ -1413,7 +1404,7 @@ public static partial class Days
     for(var i = 0; i < 2; i++)
     {
       combinations[index] = !combinations[index];
-      returnList.AddRange(GenerateUniqueCombinations(length, combinations, index + 1));
+      returnList.AddRange(GenerateUniqueBinaryCombinations(length, combinations, index + 1));
     }
 
     return returnList;
