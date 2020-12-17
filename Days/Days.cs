@@ -1515,8 +1515,76 @@ public static partial class Days
   #region Day16: todo
   public static string Day16()
   {
-    return OutputResult();
+    var input = new []
+    {
+      "class: 1-3 or 5-7",
+      "row: 6-11 or 33-44",
+      "seat: 13-40 or 45-50",
+      "",
+      "your ticket:",
+      "7,1,14",
+      "",
+      "nearby tickets:",
+      "7,3,47",
+      "40,4,50",
+      "55,2,20",
+      "38,6,12",
+    };
+
+    input = File.ReadAllLines(Path.Combine(InputBasePath, "Day16.txt"));
+    
+    var ranges = new List<Tuple<int, int>>();
+    var tickets = new List<List<int>>();
+    
+    for(var line = 0; line < input.Length; line++)
+    {
+      var current = input[line];
+
+      if(current.Contains(":"))
+      {
+        var unparsedRanges = current.Substring(current.IndexOf(':') + 1).Split(new []{ "or" } , StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim(' '));
+
+        foreach(var unParsedRange in unparsedRanges)
+        {
+          var split = unParsedRange.Split('-');
+          ranges.Add(new Tuple<int, int>(int.Parse(split[0]), int.Parse(split[1])));
+        }
+      }
+
+      if(current.Contains(','))
+      {
+        var split = current.Split(',');
+        tickets.Add(split.Select(int.Parse).ToList());
+      }
+    }
+
+    var errorRate = 0;
+
+    foreach(var ticket in tickets)
+    {     
+      foreach(var prop in ticket)
+      {
+        errorRate += IsValidNumberDay16(ranges, prop);
+      }
+    }
+
+    var p1 = errorRate;
+
+    return OutputResult(p1.ToString());
   }
+
+  private static int IsValidNumberDay16(List<Tuple<int, int>> ranges, int number)
+  {
+    if(ranges.Max(x => x.Item2) < number || ranges.Min(x => x.Item1) > number) //If the number falls completely outside of any ranges, it's not a valid number.
+    {
+      return number;
+    }
+    else
+    {
+      return ranges.Any(x => x.Item1 <= number && x.Item2 >= number) ? 0 : number;
+    }
+  }
+
   #endregion
 
   #region Day17: todo
