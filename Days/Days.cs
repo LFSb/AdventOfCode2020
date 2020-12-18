@@ -1469,7 +1469,7 @@ public static partial class Days
   }
   #endregion
 
-  #region Day15: p1 done, p2 still running...
+  #region Day15: Optimized!
   public static string Day15()
   {
     var input = new int[] { 7, 12, 1, 0, 16, 2 };
@@ -1548,7 +1548,7 @@ public static partial class Days
   }
   #endregion
 
-  #region Day16: todo
+  #region Day16: Done!
   public static string Day16()
   {
     var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day16.txt"));
