@@ -1328,7 +1328,7 @@ public static partial class Days
 
           foreach (var memAdr in addresses)
           {
-            if(mem.ContainsKey(memAdr))
+            if (mem.ContainsKey(memAdr))
             {
               mem[memAdr] = value;
             }
@@ -1347,7 +1347,7 @@ public static partial class Days
           var stringOutput = VisualizeBitArray(output);
           var maskedVal = Convert.ToInt64(stringOutput, 2);
 
-          if(mem.ContainsKey(position))
+          if (mem.ContainsKey(position))
           {
             mem[position] = maskedVal;
           }
@@ -1372,16 +1372,16 @@ public static partial class Days
     var outcomes = new string[combinations];
     var combinationLength = uniqueCombinations.First().Length;
 
-    for(var combination = 0; combination < combinations; combination++)
+    for (var combination = 0; combination < combinations; combination++)
     {
       var queue = new Queue<char>(uniqueCombinations[combination]);
 
       var local = new bool[input.Length];
 
-      for(var idx = 0; idx < input.Length; idx++)
+      for (var idx = 0; idx < input.Length; idx++)
       {
-        local[idx] = input[idx] == null 
-          ? queue.Dequeue() == '1' 
+        local[idx] = input[idx] == null
+          ? queue.Dequeue() == '1'
           : input[idx].Value;
       }
 
@@ -1395,13 +1395,13 @@ public static partial class Days
   {
     var returnList = new List<string>();
 
-    if(index == length)
+    if (index == length)
     {
       returnList.Add(string.Join("", combinations.Select(x => x ? '1' : '0')));
       return returnList;
     }
-    
-    for(var i = 0; i < 2; i++)
+
+    for (var i = 0; i < 2; i++)
     {
       combinations[index] = !combinations[index];
       returnList.AddRange(GenerateUniqueBinaryCombinations(length, combinations, index + 1));
@@ -1469,10 +1469,12 @@ public static partial class Days
   }
   #endregion
 
-  #region Day15: todo
+  #region Day15: p1 done, p2 still running...
   public static string Day15()
   {
     var input = new int[] { 7, 12, 1, 0, 16, 2 };
+
+    //input = new int[] { 1, 3, 2 };
 
     var p1 = CalculateDay15(input);
 
@@ -1485,30 +1487,64 @@ public static partial class Days
   {
     var length = p2 ? 30000000 : 2020;
 
-    var turns = new int?[length];
+    var dict = new Dictionary<int, Day15Memory>();
 
     for (var i = 0; i < input.Length; i++) //First, seed the array with the values we know to be true.
     {
-      turns[i] = input[i];
+      var num = input[i];
+
+      dict.Add(num, new Day15Memory(num) { Current = i });
     }
+
+    var previousNumber = dict.Values.Last();
 
     for (var i = input.Length; i < length; i++)
     {
-      var previousNumber = turns[i - 1];
-
-      if (turns.Count(x => x == previousNumber) == 1)
+      if (previousNumber.Previous == null) //If there's no previous value, then obviously this is the first occurance.
       {
-        turns[i] = 0;
+        SwapIfExists(ref dict, 0, i);
+
+        previousNumber = dict[0];
       }
       else
       {
-        var lastIndex = Array.LastIndexOf(turns, previousNumber);
+        var number = previousNumber.Current - previousNumber.Previous.Value;
 
-        turns[i] = lastIndex - Array.LastIndexOf(turns.Take(lastIndex).ToArray(), previousNumber);
+        SwapIfExists(ref dict, number, i);
+
+        previousNumber = dict[number];
       }
     }
 
-    return turns.Last().Value;
+    return previousNumber.Number;
+  }
+
+  private static void SwapIfExists(ref Dictionary<int, Day15Memory> dict, int number, int i)
+  {
+    if (dict.ContainsKey(number))
+    {
+      var cur = dict[number];
+      cur.Previous = cur.Current;
+      cur.Current = i;
+    }
+    else
+    {
+      dict.Add(number, new Day15Memory(number) { Current = i });
+    }
+  }
+
+  private class Day15Memory
+  {
+    public int Current { get; set; }
+
+    public int? Previous { get; set; }
+
+    public int Number { get; private set; }
+
+    public Day15Memory(int number)
+    {
+      Number = number;
+    }
   }
   #endregion
 
