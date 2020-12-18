@@ -1552,30 +1552,30 @@ public static partial class Days
   public static string Day16()
   {
     var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day16.txt"));
-    
+
     var ranges = new List<Day16Range>();
     var tickets = new List<List<int>>();
     List<int> myTicket = null;
 
-    for(var line = 0; line < input.Length; line++)
+    for (var line = 0; line < input.Length; line++)
     {
       var current = input[line];
 
-      if(current.Contains(":"))
+      if (current.Contains(":"))
       {
-        var unparsedRanges = current.Substring(current.IndexOf(':') + 1).Split(new []{ "or" } , StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim(' '));
+        var unparsedRanges = current.Substring(current.IndexOf(':') + 1).Split(new[] { "or" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim(' '));
 
-        foreach(var unParsedRange in unparsedRanges)
+        foreach (var unParsedRange in unparsedRanges)
         {
           var split = unParsedRange.Split('-');
           ranges.Add(new Day16Range(current.Substring(0, current.IndexOf(':')), int.Parse(split[0]), int.Parse(split[1])));
         }
       }
 
-      if(current.Contains(','))
+      if (current.Contains(','))
       {
         var split = current.Split(',');
-        if(myTicket == null)
+        if (myTicket == null)
         {
           myTicket = split.Select(int.Parse).ToList();
         }
@@ -1589,42 +1589,42 @@ public static partial class Days
     var errorRate = 0;
     var validTickets = new List<List<int>>();
 
-    foreach(var ticket in tickets)
-    {   
+    foreach (var ticket in tickets)
+    {
       var valid = true;
 
-      foreach(var prop in ticket)
+      foreach (var prop in ticket)
       {
         valid &= IsValidNumberDay16(ranges, prop, out var error);
         errorRate += error;
       }
 
-      if(valid)
+      if (valid)
       {
         validTickets.Add(ticket);
       }
     }
-    
+
     var p1 = errorRate;
-    
+
     var taken = new List<string>();
     long p2 = 1;
 
-    while(taken.Count() < ranges.Select(x => x.Name).Distinct().Count())
+    while (taken.Count() < ranges.Select(x => x.Name).Distinct().Count())
     {
-      for(var idx = 0; idx < validTickets.First().Count(); idx++)
+      for (var idx = 0; idx < validTickets.First().Count(); idx++)
       {
         var values = validTickets.Select(val => val[idx]).ToArray();
 
         var foundRanges = FindRangesForInput(ranges.Where(x => !taken.Contains(x.Name)), values); //There's going to be indices that have more than one candidate. Skip these for now, the field will narrow down eventually.
 
-        if(foundRanges.Count() == 1) //If we find exactly one, we found our main candidate.
+        if (foundRanges.Count() == 1) //If we find exactly one, we found our main candidate.
         {
           var range = foundRanges.First();
 
           taken.Add(range);
 
-          if(range.StartsWith("departure"))
+          if (range.StartsWith("departure"))
           {
             p2 *= myTicket[idx];
           }
@@ -1655,13 +1655,13 @@ public static partial class Days
   {
     var dict = new Dictionary<string, int>();
 
-    foreach(var val in values)
+    foreach (var val in values)
     {
       var validRanges = ranges.Where(x => x.Min <= val && x.Max >= val);
 
-      foreach(var validRange in validRanges)
+      foreach (var validRange in validRanges)
       {
-        if(!dict.ContainsKey(validRange.Name))
+        if (!dict.ContainsKey(validRange.Name))
         {
           dict.Add(validRange.Name, 0);
         }
@@ -1677,17 +1677,17 @@ public static partial class Days
   {
     numberToAdd = 0;
 
-    if(ranges.Max(x => x.Max) < number || ranges.Min(x => x.Min) > number) //If the number falls completely outside of any ranges, it's not a valid number.
+    if (ranges.Max(x => x.Max) < number || ranges.Min(x => x.Min) > number) //If the number falls completely outside of any ranges, it's not a valid number.
     {
       numberToAdd = number;
       return false;
     }
     else
     {
-      if(ranges.Any(x => x.Min <= number && x.Max >= number))
+      if (ranges.Any(x => x.Min <= number && x.Max >= number))
       {
         return true;
-      } 
+      }
       else
       {
         numberToAdd = number;
